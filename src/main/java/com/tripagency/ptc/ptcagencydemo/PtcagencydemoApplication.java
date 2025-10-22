@@ -10,5 +10,4 @@ public class PtcagencydemoApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PtcagencydemoApplication.class, args);
 	}
-
 }
