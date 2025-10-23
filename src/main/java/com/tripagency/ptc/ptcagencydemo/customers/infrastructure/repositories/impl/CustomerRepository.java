@@ -40,8 +40,8 @@ public class CustomerRepository implements ICustomerRepository {
     }
 
     @Override
-    public Page<DCustomer> findAll(int pageNumber, int pageSize) {
-        return jpaRepository.findAll(PageRequest.of(pageNumber, pageSize)).map(this.mapper::toDomain);
+    public Page<DCustomer> findAll(int page, int size) {
+        return jpaRepository.findAll(PageRequest.of(page, size)).map(this.mapper::toDomain);
     }
 
     @Override
@@ -49,5 +49,10 @@ public class CustomerRepository implements ICustomerRepository {
         DCustomer customer = findById(id);
         jpaRepository.deleteById(id);
         return customer;
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return jpaRepository.existsByEmail(email);
     }
 }

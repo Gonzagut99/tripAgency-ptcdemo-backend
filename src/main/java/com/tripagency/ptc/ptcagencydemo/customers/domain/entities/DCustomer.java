@@ -18,11 +18,11 @@ import lombok.NoArgsConstructor;
 public class DCustomer extends BaseAbstractDomainEntity {
     private String firstName;
     private String lastName;
-    private Optional<String> email;
-    private Optional<String> phoneNumber;
+    private Optional<String> email = Optional.empty();
+    private Optional<String> phoneNumber = Optional.empty();
     private LocalDate birthDate;
     private DIdDocumentType idDocumentType;
     private String idDocumentNumber;
-    private Optional<String> address;
-    private Optional<String> nationality;
+    private Optional<String> address = Optional.empty();
+    private Optional<String> nationality = Optional.empty();
 }

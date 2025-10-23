@@ -8,6 +8,7 @@ public interface ICustomerRepository {
     DCustomer save(DCustomer customer);
     DCustomer update(DCustomer customer);
     DCustomer findById(Long id);
-    Page<DCustomer> findAll(int pageNumber, int pageSize);
+    Page<DCustomer> findAll(int page, int size);
     DCustomer deleteById(Long id);
+    boolean existsByEmail(String email);
 }

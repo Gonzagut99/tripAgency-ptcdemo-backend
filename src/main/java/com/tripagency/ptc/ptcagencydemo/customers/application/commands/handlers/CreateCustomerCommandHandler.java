@@ -1,5 +1,7 @@
 package com.tripagency.ptc.ptcagencydemo.customers.application.commands.handlers;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -17,31 +19,50 @@ public class CreateCustomerCommandHandler {
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public CreateCustomerCommandHandler(ICustomerRepository customerRepository, ApplicationEventPublisher eventPublisher) {
+    public CreateCustomerCommandHandler(ICustomerRepository customerRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.customerRepository = customerRepository;
         this.eventPublisher = eventPublisher;
     }
 
     @Transactional
     public DCustomer execute(CreateCustomerCommand command) {
-        // Lógica para manejar el comando de creación de cliente
-        // Por ejemplo, convertir el DTO a una entidad de dominio y guardarla
-        DCustomer newCustomer = new DCustomer();
-        newCustomer.setFirstName(command.customerDto().getFirstName());
-        newCustomer.setLastName(command.customerDto().getLastName());
-        newCustomer.setEmail(command.customerDto().getEmail());
-        newCustomer.setPhoneNumber(command.customerDto().getPhoneNumber());
-        newCustomer.setBirthDate(command.customerDto().getBirthDate());
-        newCustomer.setIdDocumentType(command.customerDto().getIdDocumentType());
-        newCustomer.setIdDocumentNumber(command.customerDto().getIdDocumentNumber());
-        newCustomer.setAddress(command.customerDto().getAddress());
-        newCustomer.setNationality(command.customerDto().getNationality());
-        customerRepository.save(newCustomer);
+        try {
+            // Validar si el email ya existe (solo si se proporciona email)
+            if (command.customerDto().getEmail() != null && command.customerDto().getEmail().isPresent()) {
+                String email = command.customerDto().getEmail().get();
+                if (customerRepository.existsByEmail(email)) {
+                    throw new IllegalArgumentException("Ya existe un customer con el email: " + email);
+                }
+            }
 
-        DCustomer savedCustomer = customerRepository.save(newCustomer);
+            // Convertir el DTO a una entidad de dominio
+            DCustomer newCustomer = new DCustomer();
+            newCustomer.setFirstName(command.customerDto().getFirstName());
+            newCustomer.setLastName(command.customerDto().getLastName());
+            newCustomer.setEmail(
+                    command.customerDto().getEmail() != null ? command.customerDto().getEmail() : Optional.empty());
+            newCustomer.setPhoneNumber(
+                    command.customerDto().getPhoneNumber() != null ? command.customerDto().getPhoneNumber()
+                            : Optional.empty());
+            newCustomer.setBirthDate(command.customerDto().getBirthDate());
+            newCustomer.setIdDocumentType(command.customerDto().getIdDocumentType());
+            newCustomer.setIdDocumentNumber(command.customerDto().getIdDocumentNumber());
+            newCustomer.setAddress(
+                    command.customerDto().getAddress() != null ? command.customerDto().getAddress() : Optional.empty());
+            newCustomer.setNationality(
+                    command.customerDto().getNationality() != null ? command.customerDto().getNationality()
+                            : Optional.empty());
 
-        eventPublisher.publishEvent(new CustomerCreatedDomainEvent(savedCustomer.getId(), "Se creó un nuevo usuario"));
+            // Guardar el customer (solo una vez)
+            DCustomer savedCustomer = customerRepository.save(newCustomer);
 
-        return savedCustomer;
+            eventPublisher
+                    .publishEvent(new CustomerCreatedDomainEvent(savedCustomer.getId(), "Se creó un nuevo usuario"));
+
+            return savedCustomer;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

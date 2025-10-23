@@ -2,11 +2,14 @@ package com.tripagency.ptc.ptcagencydemo.customers.infrastructure.mappers;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import com.tripagency.ptc.ptcagencydemo.customers.domain.entities.DCustomer;
 import com.tripagency.ptc.ptcagencydemo.customers.domain.enums.DIdDocumentType;
 import com.tripagency.ptc.ptcagencydemo.customers.infrastructure.entities.Customer;
 import com.tripagency.ptc.ptcagencydemo.customers.infrastructure.enums.IdDocumentType;
 
+@Component
 public class CustomerLombokMapper implements ICustomerLombokMapper {
 
     @Override
@@ -17,15 +20,16 @@ public class CustomerLombokMapper implements ICustomerLombokMapper {
         Customer.CustomerBuilder customerBuilder = Customer.builder();
         customerBuilder.firstName(domainCustomer.getFirstName());
         customerBuilder.lastName(domainCustomer.getLastName());
-        customerBuilder.email(domainCustomer.getEmail().orElse(null));
-        customerBuilder.phoneNumber(domainCustomer.getPhoneNumber().orElse(null));
+        customerBuilder.email(domainCustomer.getEmail() != null ? domainCustomer.getEmail().orElse(null) : null);
+        customerBuilder.phoneNumber(
+                domainCustomer.getPhoneNumber() != null ? domainCustomer.getPhoneNumber().orElse(null) : null);
         customerBuilder.birthDate(domainCustomer.getBirthDate());
         customerBuilder.idDocumentType(
-            IdDocumentType.valueOf(domainCustomer.getIdDocumentType().name())
-        );
+                IdDocumentType.valueOf(domainCustomer.getIdDocumentType().name()));
         customerBuilder.idDocumentNumber(domainCustomer.getIdDocumentNumber());
-        customerBuilder.address(domainCustomer.getAddress().orElse(null));
-        customerBuilder.nationality(domainCustomer.getNationality().orElse(null));
+        customerBuilder.address(domainCustomer.getAddress() != null ? domainCustomer.getAddress().orElse(null) : null);
+        customerBuilder.nationality(
+                domainCustomer.getNationality() != null ? domainCustomer.getNationality().orElse(null) : null);
         if (domainCustomer.getIsActive() != null) {
             customerBuilder.isActive(domainCustomer.getIsActive());
         }
@@ -45,8 +49,7 @@ public class CustomerLombokMapper implements ICustomerLombokMapper {
         domainCustomer.setPhoneNumber(Optional.ofNullable(persistenceCustomer.getPhoneNumber()));
         domainCustomer.setBirthDate(persistenceCustomer.getBirthDate());
         domainCustomer.setIdDocumentType(
-            DIdDocumentType.valueOf(persistenceCustomer.getIdDocumentType().name())
-        );
+                DIdDocumentType.valueOf(persistenceCustomer.getIdDocumentType().name()));
         domainCustomer.setIdDocumentNumber(persistenceCustomer.getIdDocumentNumber());
         domainCustomer.setAddress(Optional.ofNullable(persistenceCustomer.getAddress()));
         domainCustomer.setNationality(Optional.ofNullable(persistenceCustomer.getNationality()));
@@ -55,5 +58,5 @@ public class CustomerLombokMapper implements ICustomerLombokMapper {
         domainCustomer.setIsActive(persistenceCustomer.getIsActive());
         return domainCustomer;
     }
-    
+
 }
