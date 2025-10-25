@@ -56,6 +56,6 @@ public class CustomerController extends BaseV1Controller {
         DCustomer createdCustomer = createCustomerCommandHandler.execute(new CreateCustomerCommand(entity));
         return createdCustomer;
     }
-    
+
 
 }
