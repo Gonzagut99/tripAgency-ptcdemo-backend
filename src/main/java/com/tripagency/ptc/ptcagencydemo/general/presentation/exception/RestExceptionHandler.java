@@ -15,7 +15,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(GeneralException.class)
     public ResponseEntity<ErrorBody> handleGeneralException(GeneralException ex) {
-        ErrorBody errorBody = new ErrorBody(ex.getMessage(), ex.getStatus(), Optional.ofNullable(ex.getDetail()));
+        ErrorBody errorBody = new ErrorBody(ex.getMessage(), ex.getStatus(), Optional.ofNullable(ex.getDetail()), Optional.ofNullable(ex.getCause()).map(Throwable::toString));
         return ResponseEntity.status(ex.getStatus()).body(errorBody);
     }
 
@@ -26,7 +26,7 @@ public class RestExceptionHandler {
             sb.append("<li>").append(fe.getField()).append(": ").append(fe.getDefaultMessage()).append("</li>");
         }
         sb.append("</ul>");
-        ErrorBody errorBody = new ErrorBody("Validación fallida", HttpStatus.BAD_REQUEST, Optional.of(sb.toString()));
+        ErrorBody errorBody = new ErrorBody("Validación fallida", HttpStatus.BAD_REQUEST, Optional.of(sb.toString()), Optional.ofNullable(ex.getCause()).map(Throwable::toString));
         return ResponseEntity.badRequest().body(errorBody);
     }
 }

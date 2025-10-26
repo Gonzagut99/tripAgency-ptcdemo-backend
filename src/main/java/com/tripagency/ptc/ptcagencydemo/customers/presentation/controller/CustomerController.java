@@ -53,7 +53,15 @@ public class CustomerController extends BaseV1Controller {
     }
 
     @PostMapping("")
-    public DCustomer saveCustomers(@RequestBody CreateCustomerDto  entity) {
+    @Operation(
+        summary = "Crear un nuevo cliente",
+        description = "Crea un nuevo cliente con la información proporcionada.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Cliente creado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DCustomer.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class)))
+        }
+    )
+    public DCustomer saveCustomers(@RequestBody CreateCustomerDto entity) {
         DCustomer createdCustomer = createCustomerCommandHandler.execute(new CreateCustomerCommand(entity));
         return createdCustomer;
     }

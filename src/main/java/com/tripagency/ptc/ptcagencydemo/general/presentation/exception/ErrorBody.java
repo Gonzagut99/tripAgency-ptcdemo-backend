@@ -4,5 +4,5 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 
-public record ErrorBody(String message, HttpStatus status, Optional<String> detail) {
+public record ErrorBody(String message, HttpStatus status, Optional<String> detail, Optional<String> callstack) {
 }
