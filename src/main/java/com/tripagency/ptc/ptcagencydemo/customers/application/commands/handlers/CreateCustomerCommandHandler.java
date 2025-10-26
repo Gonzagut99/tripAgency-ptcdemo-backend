@@ -10,6 +10,7 @@ import com.tripagency.ptc.ptcagencydemo.customers.application.commands.CreateCus
 import com.tripagency.ptc.ptcagencydemo.customers.application.events.CustomerCreatedDomainEvent;
 import com.tripagency.ptc.ptcagencydemo.customers.domain.entities.DCustomer;
 import com.tripagency.ptc.ptcagencydemo.customers.domain.repositories.ICustomerRepository;
+import com.tripagency.ptc.ptcagencydemo.general.utils.exceptions.HtpExceptionUtils;
 
 import jakarta.transaction.Transactional;
 
@@ -62,7 +63,7 @@ public class CreateCustomerCommandHandler {
 
             return savedCustomer;
         } catch (Exception e) {
-            throw e;
+            throw HtpExceptionUtils.processHttpException(e);
         }
     }
 }

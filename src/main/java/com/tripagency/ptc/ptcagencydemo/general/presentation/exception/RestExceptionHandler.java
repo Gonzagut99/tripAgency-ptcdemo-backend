@@ -29,4 +29,10 @@ public class RestExceptionHandler {
         ErrorBody errorBody = new ErrorBody("Validación fallida", HttpStatus.BAD_REQUEST, Optional.of(sb.toString()), Optional.ofNullable(ex.getCause()).map(Throwable::toString));
         return ResponseEntity.badRequest().body(errorBody);
     }
+
+    // @ExceptionHandler(IllegalArgumentException.class)
+    // public ResponseEntity<ErrorBody> handleIllegalArgumentException(IllegalArgumentException ex) {
+    //     ErrorBody errorBody = new ErrorBody(ex.getMessage(), HttpStatus.BAD_REQUEST, Optional.empty(), Optional.ofNullable(ex.getCause()).map(Throwable::toString));
+    //     return ResponseEntity.badRequest().body(errorBody);
+    // }
 }
