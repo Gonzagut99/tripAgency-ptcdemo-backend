@@ -41,6 +41,7 @@ public class CustomerLombokMapper implements ICustomerLombokMapper {
         if (persistenceCustomer == null) {
             return null;
         }
+        System.out.println(persistenceCustomer.toString());
         DCustomer domainCustomer = new DCustomer();
         // domainCustomer.setId(persistenceCustomer.getId());
         domainCustomer.setFirstName(persistenceCustomer.getFirstName());

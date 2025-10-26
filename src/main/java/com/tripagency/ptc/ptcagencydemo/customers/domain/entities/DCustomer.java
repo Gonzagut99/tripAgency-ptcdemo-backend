@@ -25,4 +25,21 @@ public class DCustomer extends BaseAbstractDomainEntity {
     private String idDocumentNumber;
     private Optional<String> address = Optional.empty();
     private Optional<String> nationality = Optional.empty();
+
+    @Override
+    public String toString() {
+        return "DCustomer{" +
+                "id=" + getId() +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email=" + email.orElse(null) +
+                ", phoneNumber=" + phoneNumber.orElse(null) +
+                ", birthDate=" + birthDate +
+                ", idDocumentType=" + idDocumentType +
+                ", idDocumentNumber='" + idDocumentNumber + '\'' +
+                ", address=" + address.orElse(null) +
+                ", nationality=" + nationality.orElse(null) +
+                ", isActive=" + getIsActive() +
+                '}';
+    }
 }

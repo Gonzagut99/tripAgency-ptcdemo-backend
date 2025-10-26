@@ -47,6 +47,7 @@ public class CustomerController extends BaseV1Controller {
         @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class))),
     })
     public Page<DCustomer> getPaginatedCustomers(@ModelAttribute PaginatedCustomerRequestDto requestDto) throws GeneralException {
+        requestDto.normalizePageNumber();
         CustomerPaginatedQuery query = new CustomerPaginatedQuery(requestDto);
         return customerPaginatedQueryHandler.execute(query);
     }

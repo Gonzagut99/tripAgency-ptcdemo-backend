@@ -1,7 +1,7 @@
 package com.tripagency.ptc.ptcagencydemo.customers.infrastructure.repositories.impl;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.tripagency.ptc.ptcagencydemo.customers.domain.entities.DCustomer;
@@ -40,8 +40,9 @@ public class CustomerRepository implements ICustomerRepository {
     }
 
     @Override
-    public Page<DCustomer> findAll(int page, int size) {
-        return jpaRepository.findAll(PageRequest.of(page, size)).map(this.mapper::toDomain);
+    public Page<DCustomer> findAll(Pageable pageConfig) {
+        Page<Customer> dbCustomers = jpaRepository.findAll(pageConfig);
+        return dbCustomers.map(this.mapper::toDomain);
     }
 
     @Override

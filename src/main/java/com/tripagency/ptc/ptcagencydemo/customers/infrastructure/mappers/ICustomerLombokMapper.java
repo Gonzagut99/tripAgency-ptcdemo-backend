@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import com.tripagency.ptc.ptcagencydemo.customers.domain.entities.DCustomer;
 import com.tripagency.ptc.ptcagencydemo.customers.infrastructure.entities.Customer;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface ICustomerLombokMapper {
     Customer toPersistence(DCustomer domainCustomer);
     DCustomer toDomain(Customer persistenceCustomer);
