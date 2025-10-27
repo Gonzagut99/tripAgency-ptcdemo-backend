@@ -6,6 +6,6 @@ public record CreateLiquidationCommand(
     float currencyRate,
     LocalDateTime paymentDeadline,
     int companion,
-    String customerId,
-    String staffId
+    Long customerId,
+    Long staffId
 ) {}

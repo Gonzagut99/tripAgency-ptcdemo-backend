@@ -1,15 +1,16 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities;
 
-import com.tripagency.ptc.ptcagencydemo.general.entities.domainEntities.BaseAbstractDomainEntity;
-import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus;
-import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentStatus;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.tripagency.ptc.ptcagencydemo.general.entities.domainEntities.BaseAbstractDomainEntity;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentStatus;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -26,15 +27,15 @@ public class DLiquidation extends BaseAbstractDomainEntity {
     private List<DHotelService> hotelServices;
     private List<DTourService> tourServices;
     private List<DAdditionalServices> additionalServices;
-    private String customerId;
-    private String staffId;
+    private Long customerId;
+    private Long staffId;
     private List<DIncidency> incidencies;
 
     public DLiquidation(float currencyRate, LocalDateTime paymentDeadline, int companion,
-                       String customerId, String staffId) {
+            Long customerId, Long staffId) {
         super();
         validateLiquidation(currencyRate, paymentDeadline, companion, customerId, staffId);
-        
+
         this.currencyRate = currencyRate;
         this.paymentDeadline = paymentDeadline;
         this.companion = companion;
@@ -52,7 +53,7 @@ public class DLiquidation extends BaseAbstractDomainEntity {
     }
 
     private void validateLiquidation(float currencyRate, LocalDateTime paymentDeadline, int companion,
-                                    String customerId, String staffId) {
+            Long customerId, Long staffId) {
         if (currencyRate <= 0) {
             throw new IllegalArgumentException("Currency rate must be greater than zero");
         }
@@ -62,11 +63,11 @@ public class DLiquidation extends BaseAbstractDomainEntity {
         if (companion < 0) {
             throw new IllegalArgumentException("Companion count cannot be negative");
         }
-        if (customerId == null || customerId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Customer ID cannot be null or empty");
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer ID cannot be null");
         }
-        if (staffId == null || staffId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Staff ID cannot be null or empty");
+        if (staffId == null) {
+            throw new IllegalArgumentException("Staff ID cannot be null");
         }
     }
 
@@ -151,35 +152,35 @@ public class DLiquidation extends BaseAbstractDomainEntity {
     // Business Logic Methods
     public float calculateTotal() {
         float total = 0f;
-        
+
         // Sum all flight services
         if (flightServices != null) {
             total += flightServices.stream()
-                .map(DFlightService::calculateTotal)
-                .reduce(0f, Float::sum);
+                    .map(DFlightService::calculateTotal)
+                    .reduce(0f, Float::sum);
         }
-        
+
         // Sum all hotel services
         if (hotelServices != null) {
             total += hotelServices.stream()
-                .map(DHotelService::calculateTotal)
-                .reduce(0f, Float::sum);
+                    .map(DHotelService::calculateTotal)
+                    .reduce(0f, Float::sum);
         }
-        
+
         // Sum all tour services
         if (tourServices != null) {
             total += tourServices.stream()
-                .map(DTourService::calculateTotal)
-                .reduce(0f, Float::sum);
+                    .map(DTourService::calculateTotal)
+                    .reduce(0f, Float::sum);
         }
-        
+
         // Sum all additional services
         if (additionalServices != null) {
             total += additionalServices.stream()
-                .map(DAdditionalServices::calculateTotal)
-                .reduce(0f, Float::sum);
+                    .map(DAdditionalServices::calculateTotal)
+                    .reduce(0f, Float::sum);
         }
-        
+
         return total;
     }
 
@@ -192,12 +193,12 @@ public class DLiquidation extends BaseAbstractDomainEntity {
             this.paymentStatus = DPaymentStatus.PENDING;
             return;
         }
-        
+
         float totalPaid = payments.stream()
-            .filter(DPayment::isValid)
-            .map(DPayment::getAmount)
-            .reduce(0f, Float::sum);
-        
+                .filter(DPayment::isValid)
+                .map(DPayment::getAmount)
+                .reduce(0f, Float::sum);
+
         if (totalPaid >= this.totalAmount) {
             this.paymentStatus = DPaymentStatus.COMPLETED;
         } else if (totalPaid > 0) {
@@ -208,8 +209,8 @@ public class DLiquidation extends BaseAbstractDomainEntity {
     }
 
     public boolean isOverdue() {
-        return LocalDateTime.now().isAfter(this.paymentDeadline) 
-            && this.paymentStatus != DPaymentStatus.COMPLETED;
+        return LocalDateTime.now().isAfter(this.paymentDeadline)
+                && this.paymentStatus != DPaymentStatus.COMPLETED;
     }
 
     public void closeLiquidation() {
@@ -241,9 +242,9 @@ public class DLiquidation extends BaseAbstractDomainEntity {
             return 0f;
         }
         return payments.stream()
-            .filter(DPayment::isValid)
-            .map(DPayment::getAmount)
-            .reduce(0f, Float::sum);
+                .filter(DPayment::isValid)
+                .map(DPayment::getAmount)
+                .reduce(0f, Float::sum);
     }
 
     public float getRemainingAmount() {
@@ -252,8 +253,8 @@ public class DLiquidation extends BaseAbstractDomainEntity {
 
     public boolean hasServices() {
         return (flightServices != null && !flightServices.isEmpty())
-            || (hotelServices != null && !hotelServices.isEmpty())
-            || (tourServices != null && !tourServices.isEmpty())
-            || (additionalServices != null && !additionalServices.isEmpty());
+                || (hotelServices != null && !hotelServices.isEmpty())
+                || (tourServices != null && !tourServices.isEmpty())
+                || (additionalServices != null && !additionalServices.isEmpty());
     }
 }

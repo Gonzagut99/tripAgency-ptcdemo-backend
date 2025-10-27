@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddAdditionalServiceCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddFlightServiceCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddHotelServiceCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddIncidencyCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddPaymentCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddTourServiceCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.CreateLiquidationCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddAdditionalServiceCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddFlightServiceCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddHotelServiceCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddIncidencyCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddPaymentCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddTourServiceCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.CreateLiquidationCommandHandler;
@@ -30,6 +32,7 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentMethod
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddAdditionalServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddFlightServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddHotelServiceDto;
+import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddIncidencyDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddPaymentDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddTourServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.CreateLiquidationDto;
@@ -51,6 +54,7 @@ public class LiquidationController {
     private final AddHotelServiceCommandHandler addHotelServiceCommandHandler;
     private final AddTourServiceCommandHandler addTourServiceCommandHandler;
     private final AddAdditionalServiceCommandHandler addAdditionalServiceCommandHandler;
+    private final AddIncidencyCommandHandler addIncidencyCommandHandler;
 
     public LiquidationController(
             CreateLiquidationCommandHandler createLiquidationCommandHandler,
@@ -59,7 +63,8 @@ public class LiquidationController {
             AddFlightServiceCommandHandler addFlightServiceCommandHandler,
             AddHotelServiceCommandHandler addHotelServiceCommandHandler,
             AddTourServiceCommandHandler addTourServiceCommandHandler,
-            AddAdditionalServiceCommandHandler addAdditionalServiceCommandHandler) {
+            AddAdditionalServiceCommandHandler addAdditionalServiceCommandHandler,
+            AddIncidencyCommandHandler addIncidencyCommandHandler) {
         this.createLiquidationCommandHandler = createLiquidationCommandHandler;
         this.liquidationPaginatedQueryHandler = liquidationPaginatedQueryHandler;
         this.addPaymentCommandHandler = addPaymentCommandHandler;
@@ -67,6 +72,7 @@ public class LiquidationController {
         this.addHotelServiceCommandHandler = addHotelServiceCommandHandler;
         this.addTourServiceCommandHandler = addTourServiceCommandHandler;
         this.addAdditionalServiceCommandHandler = addAdditionalServiceCommandHandler;
+        this.addIncidencyCommandHandler = addIncidencyCommandHandler;
     }
 
     @PostMapping
@@ -76,8 +82,8 @@ public class LiquidationController {
                 dto.getCurrencyRate(),
                 dto.getPaymentDeadline(),
                 dto.getCompanion(),
-                dto.getCustomerId().toString(),
-                dto.getStaffId().toString());
+                dto.getCustomerId(),
+                dto.getStaffId());
 
         DLiquidation liquidation = createLiquidationCommandHandler.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(liquidation);
@@ -142,6 +148,16 @@ public class LiquidationController {
             @Valid @RequestBody AddAdditionalServiceDto dto) {
         AddAdditionalServiceCommand command = new AddAdditionalServiceCommand(liquidationId, dto);
         DLiquidation liquidation = addAdditionalServiceCommandHandler.execute(command);
+        return ResponseEntity.ok(liquidation);
+    }
+
+    @PostMapping("/{liquidationId}/incidencies")
+    @Operation(summary = "Add incidency to liquidation")
+    public ResponseEntity<DLiquidation> addIncidency(
+            @PathVariable Long liquidationId,
+            @Valid @RequestBody AddIncidencyDto dto) {
+        AddIncidencyCommand command = new AddIncidencyCommand(liquidationId, dto);
+        DLiquidation liquidation = addIncidencyCommandHandler.execute(command);
         return ResponseEntity.ok(liquidation);
     }
 }
