@@ -23,7 +23,7 @@ public class DAdditionalServices extends DBaseAbstractService {
 
     private void validatePrice(float price) {
         if (price < 0) {
-            throw new IllegalArgumentException("Price cannot be negative");
+            throw new IllegalArgumentException("El precio no puede ser negativo.");
         }
     }
 

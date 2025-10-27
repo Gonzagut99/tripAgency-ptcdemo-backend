@@ -16,25 +16,25 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class TourDto {
     
-    @NotNull(message = "Start date is required")
+    @NotNull(message = "La fecha de inicio es obligatoria")
     private LocalDateTime startDate;
-    
-    @NotNull(message = "End date is required")
+
+    @NotNull(message = "La fecha de fin es obligatoria")
     private LocalDateTime endDate;
     
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "El título es obligatorio")
     private String title;
-    
-    @NotNull(message = "Price is required")
-    @Positive(message = "Price must be positive")
+
+    @NotNull(message = "El precio es obligatorio")
+    @Positive(message = "El precio debe ser positivo")
     private Float price;
     
-    @NotBlank(message = "Place is required")
+    @NotBlank(message = "El lugar es obligatorio")
     private String place;
     
-    @NotBlank(message = "Currency is required")
+    @NotBlank(message = "La moneda es obligatoria")
     private String currency;
-    
-    @NotBlank(message = "Status is required")
+
+    @NotBlank(message = "El estado es obligatorio")
     private String status;
 }

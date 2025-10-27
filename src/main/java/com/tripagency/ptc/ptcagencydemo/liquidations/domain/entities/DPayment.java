@@ -29,13 +29,13 @@ public class DPayment extends BaseAbstractDomainEntity {
 
     private void validatePayment(DPaymentMethod method, float amount, Long liquidationId) {
         if (method == null) {
-            throw new IllegalArgumentException("Payment method cannot be null");
+            throw new IllegalArgumentException("El metodo de pago no puede ser nulo");
         }
         if (amount <= 0) {
-            throw new IllegalArgumentException("Payment amount must be greater than zero");
+            throw new IllegalArgumentException("El monto del pago debe ser mayor que cero");
         }
         if (liquidationId == null) {
-            throw new IllegalArgumentException("Liquidation ID cannot be null");
+            throw new IllegalArgumentException("El ID de liquidación no puede ser nulo");
         }
     }
 

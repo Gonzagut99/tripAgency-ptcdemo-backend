@@ -16,36 +16,36 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class FlightBookingDto {
     
-    @NotBlank(message = "Origin is required")
+    @NotBlank(message = "El origin es obligatorio")
     private String origin;
-    
-    @NotBlank(message = "Destiny is required")
+
+    @NotBlank(message = "El destiny es obligatorio")
     private String destiny;
     
-    @NotNull(message = "Departure date is required")
+    @NotNull(message = "La fecha de salida es obligatoria")
     private LocalDateTime departureDate;
     
-    @NotNull(message = "Arrival date is required")
+    @NotNull(message = "La fecha de llegada es obligatoria")
     private LocalDateTime arrivalDate;
     
-    @NotBlank(message = "Aeroline is required")
+    @NotBlank(message = "El aeroline es obligatorio")
     private String aeroline;
     
-    @NotBlank(message = "Aeroline booking code is required")
+    @NotBlank(message = "El código de reserva de aeroline es obligatorio")
     private String aerolineBookingCode;
     
     private String costamarBookingCode;
     
-    @NotBlank(message = "TKT numbers are required")
+    @NotBlank(message = "Los números de TKT son obligatorios")
     private String tktNumbers;
     
-    @NotBlank(message = "Status is required")
+    @NotBlank(message = "El estado es obligatorio")
     private String status;
     
-    @NotNull(message = "Total price is required")
-    @Positive(message = "Total price must be positive")
+    @NotNull(message = "El precio total es obligatorio")
+    @Positive(message = "El precio total debe ser positivo")
     private Float totalPrice;
     
-    @NotBlank(message = "Currency is required")
+    @NotBlank(message = "La moneda es obligatoria")
     private String currency;
 }

@@ -1,12 +1,13 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.tripagency.ptc.ptcagencydemo.users.domain.enums.DCurrency;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,7 +22,7 @@ public class DTourService extends DBaseAbstractService {
 
     public void addTour(DTour tour) {
         if (tour == null) {
-            throw new IllegalArgumentException("Tour cannot be null");
+            throw new IllegalArgumentException("El tour no puede ser nulo");
         }
         this.tours.add(tour);
     }

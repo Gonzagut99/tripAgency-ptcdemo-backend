@@ -30,10 +30,10 @@ public class DUser extends BaseAbstractDomainEntity {
      */
     public void validateEmail() {
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty");
+            throw new IllegalArgumentException("El email no puede estar vacío");
         }
         if (!EMAIL_PATTERN.matcher(email).matches()) {
-            throw new IllegalArgumentException("Invalid email format: " + email);
+            throw new IllegalArgumentException("Formato de email inválido: " + email);
         }
     }
 
@@ -45,7 +45,7 @@ public class DUser extends BaseAbstractDomainEntity {
     public void validatePasswordStrength(String password) {
         if (password == null || password.length() < MIN_PASSWORD_LENGTH) {
             throw new IllegalArgumentException(
-                "Password must be at least " + MIN_PASSWORD_LENGTH + " characters long"
+                "La contraseña debe tener al menos " + MIN_PASSWORD_LENGTH + " caracteres"
             );
         }
     }

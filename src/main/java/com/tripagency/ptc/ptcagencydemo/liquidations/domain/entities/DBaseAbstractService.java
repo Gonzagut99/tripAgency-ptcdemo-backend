@@ -2,6 +2,7 @@ package com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities;
 
 import com.tripagency.ptc.ptcagencydemo.general.entities.domainEntities.BaseAbstractDomainEntity;
 import com.tripagency.ptc.ptcagencydemo.users.domain.enums.DCurrency;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,13 +28,13 @@ public abstract class DBaseAbstractService extends BaseAbstractDomainEntity {
 
     private void validateBaseService(float tariffRate, DCurrency currency, Long liquidationId) {
         if (tariffRate < 0) {
-            throw new IllegalArgumentException("Tariff rate cannot be negative");
+            throw new IllegalArgumentException("La tarifa no puede ser negativa.");
         }
         if (currency == null) {
-            throw new IllegalArgumentException("Currency cannot be null");
+            throw new IllegalArgumentException("La moneda no puede ser nula.");
         }
         if (liquidationId == null) {
-            throw new IllegalArgumentException("Liquidation ID cannot be null");
+            throw new IllegalArgumentException("El ID de liquidación no puede ser nulo.");
         }
     }
 

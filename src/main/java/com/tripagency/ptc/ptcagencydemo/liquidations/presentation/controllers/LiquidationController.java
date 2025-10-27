@@ -25,9 +25,16 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handle
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddPaymentCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddTourServiceCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.CreateLiquidationCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.GetLiquidationByIdQuery;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.GetLiquidationsByCustomerQuery;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.GetLiquidationsByStatusQuery;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.LiquidationPaginatedQuery;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.GetLiquidationByIdQueryHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.GetLiquidationsByCustomerQueryHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.GetLiquidationsByStatusQueryHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.LiquidationPaginatedQueryHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DLiquidation;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentMethod;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddAdditionalServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddFlightServiceDto;
@@ -36,6 +43,7 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddInciden
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddPaymentDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddTourServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.CreateLiquidationDto;
+import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.LiquidationWithDetailsDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.PaginatedLiquidationRequestDto;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,11 +52,14 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/liquidations")
-@Tag(name = "Liquidations", description = "Liquidation management endpoints")
+@Tag(name = "Liquidaciones", description = "Endpoints de gestión de liquidaciones")
 public class LiquidationController {
 
     private final CreateLiquidationCommandHandler createLiquidationCommandHandler;
     private final LiquidationPaginatedQueryHandler liquidationPaginatedQueryHandler;
+    private final GetLiquidationByIdQueryHandler getLiquidationByIdQueryHandler;
+    private final GetLiquidationsByCustomerQueryHandler getLiquidationsByCustomerQueryHandler;
+    private final GetLiquidationsByStatusQueryHandler getLiquidationsByStatusQueryHandler;
     private final AddPaymentCommandHandler addPaymentCommandHandler;
     private final AddFlightServiceCommandHandler addFlightServiceCommandHandler;
     private final AddHotelServiceCommandHandler addHotelServiceCommandHandler;
@@ -59,6 +70,9 @@ public class LiquidationController {
     public LiquidationController(
             CreateLiquidationCommandHandler createLiquidationCommandHandler,
             LiquidationPaginatedQueryHandler liquidationPaginatedQueryHandler,
+            GetLiquidationByIdQueryHandler getLiquidationByIdQueryHandler,
+            GetLiquidationsByCustomerQueryHandler getLiquidationsByCustomerQueryHandler,
+            GetLiquidationsByStatusQueryHandler getLiquidationsByStatusQueryHandler,
             AddPaymentCommandHandler addPaymentCommandHandler,
             AddFlightServiceCommandHandler addFlightServiceCommandHandler,
             AddHotelServiceCommandHandler addHotelServiceCommandHandler,
@@ -67,6 +81,9 @@ public class LiquidationController {
             AddIncidencyCommandHandler addIncidencyCommandHandler) {
         this.createLiquidationCommandHandler = createLiquidationCommandHandler;
         this.liquidationPaginatedQueryHandler = liquidationPaginatedQueryHandler;
+        this.getLiquidationByIdQueryHandler = getLiquidationByIdQueryHandler;
+        this.getLiquidationsByCustomerQueryHandler = getLiquidationsByCustomerQueryHandler;
+        this.getLiquidationsByStatusQueryHandler = getLiquidationsByStatusQueryHandler;
         this.addPaymentCommandHandler = addPaymentCommandHandler;
         this.addFlightServiceCommandHandler = addFlightServiceCommandHandler;
         this.addHotelServiceCommandHandler = addHotelServiceCommandHandler;
@@ -76,7 +93,7 @@ public class LiquidationController {
     }
 
     @PostMapping
-    @Operation(summary = "Create a new liquidation")
+    @Operation(summary = "Crear una nueva liquidación")
     public ResponseEntity<DLiquidation> createLiquidation(@Valid @RequestBody CreateLiquidationDto dto) {
         CreateLiquidationCommand command = new CreateLiquidationCommand(
                 dto.getCurrencyRate(),
@@ -89,16 +106,45 @@ public class LiquidationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(liquidation);
     }
 
-    @GetMapping("/paginados")
-    @Operation(summary = "Get paginated liquidations")
-    public Page<DLiquidation> getPaginatedLiquidations(@ModelAttribute PaginatedLiquidationRequestDto requestDto) {
+    @GetMapping("/paginated")
+    @Operation(summary = "Obtener liquidaciones paginadas")
+    public Page<LiquidationWithDetailsDto> getPaginatedLiquidations(@ModelAttribute PaginatedLiquidationRequestDto requestDto) {
         requestDto.normalizePageNumber();
         LiquidationPaginatedQuery query = new LiquidationPaginatedQuery(requestDto);
         return liquidationPaginatedQueryHandler.execute(query);
     }
 
+    @GetMapping("/{liquidationId}")
+    @Operation(summary = "Obtener liquidación por ID")
+    public ResponseEntity<LiquidationWithDetailsDto> getLiquidationById(@PathVariable Long liquidationId) {
+        GetLiquidationByIdQuery query = new GetLiquidationByIdQuery(liquidationId);
+        return getLiquidationByIdQueryHandler.execute(query)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/customer/{customerId}")
+    @Operation(summary = "Obtener liquidaciones paginadas por ID de cliente")
+    public Page<LiquidationWithDetailsDto> getLiquidationsByCustomer(
+            @PathVariable Long customerId,
+            @ModelAttribute PaginatedLiquidationRequestDto requestDto) {
+        requestDto.normalizePageNumber();
+        GetLiquidationsByCustomerQuery query = new GetLiquidationsByCustomerQuery(customerId, requestDto);
+        return getLiquidationsByCustomerQueryHandler.execute(query);
+    }
+
+    @GetMapping("/status/{status}")
+    @Operation(summary = "Obtener liquidaciones paginadas por estado")
+    public Page<LiquidationWithDetailsDto> getLiquidationsByStatus(
+            @PathVariable DLiquidationStatus status,
+            @ModelAttribute PaginatedLiquidationRequestDto requestDto) {
+        requestDto.normalizePageNumber();
+        GetLiquidationsByStatusQuery query = new GetLiquidationsByStatusQuery(status, requestDto);
+        return getLiquidationsByStatusQueryHandler.execute(query);
+    }
+
     @PostMapping("/{liquidationId}/payments")
-    @Operation(summary = "Add payment to liquidation")
+    @Operation(summary = "Agregar pago a la liquidación")
     public ResponseEntity<DLiquidation> addPayment(
             @PathVariable Long liquidationId,
             @Valid @RequestBody AddPaymentDto dto) {
@@ -112,7 +158,7 @@ public class LiquidationController {
     }
 
     @PostMapping("/{liquidationId}/flight-services")
-    @Operation(summary = "Add flight service to liquidation")
+    @Operation(summary = "Agregar servicio de vuelo a la liquidación")
     public ResponseEntity<DLiquidation> addFlightService(
             @PathVariable Long liquidationId,
             @Valid @RequestBody AddFlightServiceDto dto) {
@@ -122,7 +168,7 @@ public class LiquidationController {
     }
 
     @PostMapping("/{liquidationId}/hotel-services")
-    @Operation(summary = "Add hotel service to liquidation")
+    @Operation(summary = "Agregar servicio de hotel a la liquidación")
     public ResponseEntity<DLiquidation> addHotelService(
             @PathVariable Long liquidationId,
             @Valid @RequestBody AddHotelServiceDto dto) {
@@ -132,7 +178,7 @@ public class LiquidationController {
     }
 
     @PostMapping("/{liquidationId}/tour-services")
-    @Operation(summary = "Add tour service to liquidation")
+    @Operation(summary = "Agregar servicio de tour a la liquidación")
     public ResponseEntity<DLiquidation> addTourService(
             @PathVariable Long liquidationId,
             @Valid @RequestBody AddTourServiceDto dto) {
@@ -142,7 +188,7 @@ public class LiquidationController {
     }
 
     @PostMapping("/{liquidationId}/additional-services")
-    @Operation(summary = "Add additional service to liquidation")
+    @Operation(summary = "Agregar servicio adicional a la liquidación")
     public ResponseEntity<DLiquidation> addAdditionalService(
             @PathVariable Long liquidationId,
             @Valid @RequestBody AddAdditionalServiceDto dto) {
@@ -152,7 +198,7 @@ public class LiquidationController {
     }
 
     @PostMapping("/{liquidationId}/incidencies")
-    @Operation(summary = "Add incidency to liquidation")
+    @Operation(summary = "Agregar incidencia a la liquidación")
     public ResponseEntity<DLiquidation> addIncidency(
             @PathVariable Long liquidationId,
             @Valid @RequestBody AddIncidencyDto dto) {

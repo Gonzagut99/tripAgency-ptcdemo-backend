@@ -41,25 +41,25 @@ public class DTour extends BaseAbstractDomainEntity {
     private void validateTour(LocalDateTime startDate, LocalDateTime endDate, String title,
             float price, String place, DCurrency currency, Long tourServiceId) {
         if (startDate == null) {
-            throw new IllegalArgumentException("Start date cannot be null");
+            throw new IllegalArgumentException("La fecha de inicio no puede ser nula");
         }
         if (endDate == null) {
-            throw new IllegalArgumentException("End date cannot be null");
+            throw new IllegalArgumentException("La fecha de finalización no puede ser nula");
         }
         if (endDate.isBefore(startDate)) {
-            throw new IllegalArgumentException("End date must be after or equal to start date");
+            throw new IllegalArgumentException("La fecha de finalización debe ser posterior o igual a la fecha de inicio");
         }
         if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("Title cannot be null or empty");
+            throw new IllegalArgumentException("El título no puede ser nulo o vacío");
         }
         if (price < 0) {
-            throw new IllegalArgumentException("Price cannot be negative");
+            throw new IllegalArgumentException("El precio no puede ser negativo");
         }
         if (place == null || place.trim().isEmpty()) {
-            throw new IllegalArgumentException("Place cannot be null or empty");
+            throw new IllegalArgumentException("El lugar no puede ser nulo o vacío");
         }
         if (currency == null) {
-            throw new IllegalArgumentException("Currency cannot be null");
+            throw new IllegalArgumentException("La moneda no puede ser nula");
         }
         // tourServiceId can be null temporarily when creating the tour before
         // persisting

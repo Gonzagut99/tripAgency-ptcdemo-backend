@@ -33,7 +33,7 @@ public class LiquidationRepository implements ILiquidationRepository {
             // Load existing entity from database
             var existingEntity = jpaRepository.findById(liquidation.getId())
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "Liquidation not found with id: " + liquidation.getId()));
+                            "La liquidación no fue encontrada con id: " + liquidation.getId()));
 
             // Update scalar fields
             existingEntity.setCurrencyRate(liquidation.getCurrencyRate());
@@ -145,5 +145,18 @@ public class LiquidationRepository implements ILiquidationRepository {
     @Override
     public boolean existsById(Long id) {
         return jpaRepository.existsById(id);
+    }
+
+    @Override
+    public Page<DLiquidation> findByCustomerId(Long customerId, Pageable pageable) {
+        return jpaRepository.findByCustomerId(customerId, pageable)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Page<DLiquidation> findByStatus(com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus status, Pageable pageable) {
+        var infrastructureStatus = enumMapper.toInfrastructure(status);
+        return jpaRepository.findByStatus(infrastructureStatus, pageable)
+                .map(mapper::toDomain);
     }
 }

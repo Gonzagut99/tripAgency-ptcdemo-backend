@@ -17,21 +17,21 @@ import lombok.Setter;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateLiquidationDto {
-    
-    @Positive(message = "Currency rate must be greater than zero")
-    @NotNull(message = "Currency rate is required")
+
+    @Positive(message = "La tasa de cambio debe ser mayor que cero")
+    @NotNull(message = "La tasa de cambio es obligatoria")
     private Float currencyRate;
     
-    @NotNull(message = "Payment deadline is required")
+    @NotNull(message = "La fecha límite de pago es obligatoria")
     private LocalDateTime paymentDeadline;
-    
-    @PositiveOrZero(message = "Companion count cannot be negative")
-    @NotNull(message = "Companion count is required")
+
+    @PositiveOrZero(message = "El número de acompañantes no puede ser negativo")
+    @NotNull(message = "El número de acompañantes es obligatorio")
     private Integer companion;
     
-    @NotNull(message = "Customer ID is required")
+    @NotNull(message = "El ID del cliente es obligatorio")
     private Long customerId;
     
-    @NotNull(message = "Staff ID is required")
+    @NotNull(message = "El ID del personal es obligatorio")
     private Long staffId;
 }

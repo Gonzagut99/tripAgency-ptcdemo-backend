@@ -54,34 +54,34 @@ public class DFlightBooking extends BaseAbstractDomainEntity {
                                       LocalDateTime arrivalDate, String aeroline, String aerolineBookingCode,
                                       String tktNumbers, float totalPrice, DCurrency currency, Long flightServiceId) {
         if (origin == null || origin.trim().isEmpty()) {
-            throw new IllegalArgumentException("Origin cannot be null or empty");
+            throw new IllegalArgumentException("El origen no puede ser nulo o vacío");
         }
         if (destiny == null || destiny.trim().isEmpty()) {
-            throw new IllegalArgumentException("Destiny cannot be null or empty");
+            throw new IllegalArgumentException("El destino no puede ser nulo o vacío");
         }
         if (departureDate == null) {
-            throw new IllegalArgumentException("Departure date cannot be null");
+            throw new IllegalArgumentException("La fecha de salida no puede ser nula");
         }
         if (arrivalDate == null) {
-            throw new IllegalArgumentException("Arrival date cannot be null");
+            throw new IllegalArgumentException("La fecha de llegada no puede ser nula");
         }
         if (arrivalDate.isBefore(departureDate)) {
-            throw new IllegalArgumentException("Arrival date must be after departure date");
+            throw new IllegalArgumentException("La fecha de llegada debe ser posterior a la fecha de salida");
         }
         if (aeroline == null || aeroline.trim().isEmpty()) {
-            throw new IllegalArgumentException("Aeroline cannot be null or empty");
+            throw new IllegalArgumentException("La aerolínea no puede ser nula o vacía");
         }
         if (aerolineBookingCode == null || aerolineBookingCode.trim().isEmpty()) {
-            throw new IllegalArgumentException("Aeroline booking code cannot be null or empty");
+            throw new IllegalArgumentException("El código de reserva de la aerolínea no puede ser nulo o vacío");
         }
         if (tktNumbers == null || tktNumbers.trim().isEmpty()) {
-            throw new IllegalArgumentException("Ticket numbers cannot be null or empty");
+            throw new IllegalArgumentException("Los números de ticket no pueden ser nulos o vacíos");
         }
         if (totalPrice < 0) {
-            throw new IllegalArgumentException("Total price cannot be negative");
+            throw new IllegalArgumentException("El precio total no puede ser negativo");
         }
         if (currency == null) {
-            throw new IllegalArgumentException("Currency cannot be null");
+            throw new IllegalArgumentException("La moneda no puede ser nula");
         }
         // flightServiceId can be null temporarily when creating the booking before persisting
     }

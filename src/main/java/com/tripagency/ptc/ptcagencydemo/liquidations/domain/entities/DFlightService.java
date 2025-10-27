@@ -1,12 +1,13 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.tripagency.ptc.ptcagencydemo.users.domain.enums.DCurrency;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,7 +22,7 @@ public class DFlightService extends DBaseAbstractService {
 
     public void addFlightBooking(DFlightBooking flightBooking) {
         if (flightBooking == null) {
-            throw new IllegalArgumentException("Flight booking cannot be null");
+            throw new IllegalArgumentException("La reserva de vuelo no puede ser nula");
         }
         this.flightBookings.add(flightBooking);
     }

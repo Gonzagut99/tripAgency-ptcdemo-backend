@@ -26,7 +26,7 @@ public class AddHotelServiceCommandHandler {
     @Transactional
     public DLiquidation execute(AddHotelServiceCommand command) {
         DLiquidation liquidation = liquidationRepository.findById(command.liquidationId())
-                .orElseThrow(() -> new IllegalArgumentException("Liquidation not found with id: " + command.liquidationId()));
+                .orElseThrow(() -> new IllegalArgumentException("La liquidación no fue encontrada con id: " + command.liquidationId()));
         
         AddHotelServiceDto dto = command.hotelServiceDto();
         

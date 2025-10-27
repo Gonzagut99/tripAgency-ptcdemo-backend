@@ -45,22 +45,22 @@ public class DHotelBooking extends BaseAbstractDomainEntity {
     private void validateHotelBooking(LocalDateTime checkIn, LocalDateTime checkOut, String hotel,
                                      String room, float priceByNight, DCurrency currency, Long hotelServiceId) {
         if (checkIn == null) {
-            throw new IllegalArgumentException("Check-in date cannot be null");
+            throw new IllegalArgumentException("La fecha de check-in no puede ser nula");
         }
         if (checkOut == null) {
-            throw new IllegalArgumentException("Check-out date cannot be null");
+            throw new IllegalArgumentException("La fecha de check-out no puede ser nula");
         }
         if (checkOut.isBefore(checkIn) || checkOut.isEqual(checkIn)) {
-            throw new IllegalArgumentException("Check-out date must be after check-in date");
+            throw new IllegalArgumentException("La fecha de check-out debe ser posterior a la fecha de check-in");
         }
         if (hotel == null || hotel.trim().isEmpty()) {
-            throw new IllegalArgumentException("Hotel name cannot be null or empty");
+            throw new IllegalArgumentException("El nombre del hotel no puede ser nulo o vacío");
         }
         if (room == null || room.trim().isEmpty()) {
-            throw new IllegalArgumentException("Room cannot be null or empty");
+            throw new IllegalArgumentException("El nombre de la habitación no puede ser nulo o vacío");
         }
         if (priceByNight < 0) {
-            throw new IllegalArgumentException("Price by night cannot be negative");
+            throw new IllegalArgumentException("El precio por noche no puede ser negativo");
         }
         if (currency == null) {
             throw new IllegalArgumentException("Currency cannot be null");

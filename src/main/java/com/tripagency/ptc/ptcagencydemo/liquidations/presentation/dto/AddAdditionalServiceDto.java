@@ -14,20 +14,20 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AddAdditionalServiceDto {
     
-    @NotNull(message = "Tariff rate is required")
-    @Positive(message = "Tariff rate must be positive")
+    @NotNull(message = "La tarifa de la tasa de comisión es obligatorio")
+    @Positive(message = "La tarifa de la tasa de comisión debe ser positiva")
     private Float tariffRate;
-    
-    @NotNull(message = "Is taxed field is required")
+
+    @NotNull(message = "El campo de impuesto es obligatorio")
     private Boolean isTaxed;
     
-    @NotBlank(message = "Currency is required")
+    @NotBlank(message = "El campo de moneda es obligatorio")
     private String currency;
-    
-    @NotNull(message = "Price is required")
-    @Positive(message = "Price must be positive")
+
+    @NotNull(message = "El campo de precio es obligatorio")
+    @Positive(message = "El campo de precio debe ser positivo")
     private Float price;
     
-    @NotBlank(message = "Status is required")
+    @NotBlank(message = "El campo de estado es obligatorio")
     private String status;
 }

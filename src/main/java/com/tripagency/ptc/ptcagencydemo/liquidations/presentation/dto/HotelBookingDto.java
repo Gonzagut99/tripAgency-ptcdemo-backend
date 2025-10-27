@@ -16,27 +16,27 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class HotelBookingDto {
     
-    @NotNull(message = "Check-in date is required")
+    @NotNull(message = "La fecha de check-in es obligatoria")
     private LocalDateTime checkIn;
-    
-    @NotNull(message = "Check-out date is required")
+
+    @NotNull(message = "La fecha de check-out es obligatoria")
     private LocalDateTime checkOut;
     
-    @NotBlank(message = "Hotel name is required")
+    @NotBlank(message = "El nombre del hotel es obligatorio")
     private String hotel;
-    
-    @NotBlank(message = "Room is required")
+
+    @NotBlank(message = "La habitación es obligatoria")
     private String room;
     
     private String roomDescription;
     
-    @NotNull(message = "Price by night is required")
-    @Positive(message = "Price by night must be positive")
+    @NotNull(message = "El precio por noche es obligatorio")
+    @Positive(message = "El precio por noche debe ser positivo")
     private Float priceByNight;
-    
-    @NotBlank(message = "Currency is required")
+
+    @NotBlank(message = "La moneda es obligatoria")
     private String currency;
     
-    @NotBlank(message = "Status is required")
+    @NotBlank(message = "El estado es obligatorio")
     private String status;
 }

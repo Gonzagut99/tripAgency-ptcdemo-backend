@@ -26,7 +26,7 @@ public class AddFlightServiceCommandHandler {
     @Transactional
     public DLiquidation execute(AddFlightServiceCommand command) {
         DLiquidation liquidation = liquidationRepository.findById(command.liquidationId())
-                .orElseThrow(() -> new IllegalArgumentException("Liquidation not found with id: " + command.liquidationId()));
+                .orElseThrow(() -> new IllegalArgumentException("La liquidación no fue encontrada con id: " + command.liquidationId()));
         
         AddFlightServiceDto dto = command.flightServiceDto();
         

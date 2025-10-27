@@ -21,7 +21,7 @@ public class DHotelService extends DBaseAbstractService {
 
     public void addHotelBooking(DHotelBooking hotelBooking) {
         if (hotelBooking == null) {
-            throw new IllegalArgumentException("Hotel booking cannot be null");
+            throw new IllegalArgumentException("La reserva de hotel no puede ser nula");
         }
         this.hotelBookings.add(hotelBooking);
     }

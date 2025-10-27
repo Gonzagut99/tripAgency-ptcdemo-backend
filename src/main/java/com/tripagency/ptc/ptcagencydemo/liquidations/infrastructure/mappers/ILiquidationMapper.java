@@ -5,8 +5,10 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.tripagency.ptc.ptcagencydemo.customers.infrastructure.mappers.ICustomerLombokMapper;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DLiquidation;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Liquidation;
+import com.tripagency.ptc.ptcagencydemo.users.infrastructure.mappers.IStaffLombokMapper;
 
 @Mapper(componentModel = "spring", uses = {
         ILiquidationEnumMapper.class,
@@ -15,7 +17,9 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Liq
         IHotelServiceMapper.class,
         ITourServiceMapper.class,
         IAdditionalServicesMapper.class,
-        IIncidencyMapper.class
+        IIncidencyMapper.class,
+        ICustomerLombokMapper.class,
+        IStaffLombokMapper.class
 })
 public interface ILiquidationMapper {
 
@@ -47,9 +51,27 @@ public interface ILiquidationMapper {
         }
     }
 
+    @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "staffOnCharge", ignore = true)
     DLiquidation toDomain(Liquidation infrastructure);
 
     List<Liquidation> toInfrastructureList(List<DLiquidation> domainList);
 
     List<DLiquidation> toDomainList(List<Liquidation> infrastructureList);
+    
+    @org.mapstruct.AfterMapping
+    default void mapRelationships(@org.mapstruct.MappingTarget DLiquidation target, Liquidation source,
+            ICustomerLombokMapper customerMapper, IStaffLombokMapper staffMapper) {
+        if (source.getCustomer() != null) {
+            target.setCustomer(java.util.Optional.of(customerMapper.toDomain(source.getCustomer())));
+        } else {
+            target.setCustomer(java.util.Optional.empty());
+        }
+        
+        if (source.getStaffOnCharge() != null) {
+            target.setStaffOnCharge(java.util.Optional.of(staffMapper.toDomain(source.getStaffOnCharge())));
+        } else {
+            target.setStaffOnCharge(java.util.Optional.empty());
+        }
+    }
 }

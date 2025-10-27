@@ -24,7 +24,7 @@ public class AddTourServiceCommandHandler {
     @Transactional
     public DLiquidation execute(AddTourServiceCommand command) {
         DLiquidation liquidation = liquidationRepository.findById(command.liquidationId())
-                .orElseThrow(() -> new IllegalArgumentException("Liquidation not found with id: " + command.liquidationId()));
+                .orElseThrow(() -> new IllegalArgumentException("La liquidación no fue encontrada con id: " + command.liquidationId()));
         
         AddTourServiceDto dto = command.tourServiceDto();
         

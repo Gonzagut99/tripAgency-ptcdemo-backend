@@ -14,12 +14,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AddIncidencyDto {
     
-    @NotBlank(message = "Reason is required")
+    @NotBlank(message = "El motivo es obligatorio")
     private String reason;
-    
-    @PositiveOrZero(message = "Amount cannot be negative")
+
+    @PositiveOrZero(message = "El monto no puede ser negativo")
     private Float amount;
     
-    @NotNull(message = "Incidency date is required")
+    @NotNull(message = "La fecha de incidencia es obligatoria")
     private LocalDateTime incidencyDate;
 }

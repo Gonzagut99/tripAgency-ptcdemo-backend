@@ -1,13 +1,14 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import com.tripagency.ptc.ptcagencydemo.general.entities.domainEntities.BaseAbstractDomainEntity;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DIncidencyStatus;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -32,29 +33,29 @@ public class DIncidency extends BaseAbstractDomainEntity {
 
     private void validateIncidency(String reason, Optional<Float> amount, LocalDateTime incidencyDate, Long liquidationId) {
         if (reason == null || reason.trim().isEmpty()) {
-            throw new IllegalArgumentException("Reason cannot be null or empty");
+            throw new IllegalArgumentException("El motivo no puede ser nulo o vacío");
         }
         if (amount != null && amount.isPresent() && amount.get() < 0) {
-            throw new IllegalArgumentException("Amount cannot be negative");
+            throw new IllegalArgumentException("El monto no puede ser negativo");
         }
         if (incidencyDate == null) {
-            throw new IllegalArgumentException("Incidency date cannot be null");
+            throw new IllegalArgumentException("La fecha de incidencia no puede ser nula");
         }
         if (liquidationId == null) {
-            throw new IllegalArgumentException("Liquidation ID cannot be null");
+            throw new IllegalArgumentException("El ID de liquidación no puede ser nulo");
         }
     }
 
     public void approve() {
         if (this.incidencyStatus != DIncidencyStatus.PENDING) {
-            throw new IllegalStateException("Only pending incidencies can be approved");
+            throw new IllegalStateException("Solo las incidencias pendientes pueden ser aprobadas");
         }
         this.incidencyStatus = DIncidencyStatus.APPROVED;
     }
 
     public void reject() {
         if (this.incidencyStatus != DIncidencyStatus.PENDING) {
-            throw new IllegalStateException("Only pending incidencies can be rejected");
+            throw new IllegalStateException("Solo las incidencias pendientes pueden ser rechazadas");
         }
         this.incidencyStatus = DIncidencyStatus.REJECTED;
     }

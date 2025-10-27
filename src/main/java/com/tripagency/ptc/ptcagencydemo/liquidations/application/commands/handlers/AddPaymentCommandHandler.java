@@ -20,7 +20,7 @@ public class AddPaymentCommandHandler {
     @Transactional
     public DLiquidation execute(AddPaymentCommand command) {
         DLiquidation liquidation = liquidationRepository.findById(command.liquidationId())
-            .orElseThrow(() -> new IllegalArgumentException("Liquidation not found with id: " + command.liquidationId()));
+            .orElseThrow(() -> new IllegalArgumentException("La liquidación no fue encontrada con id: " + command.liquidationId()));
         
         DPayment payment = new DPayment(
             command.paymentMethod(),

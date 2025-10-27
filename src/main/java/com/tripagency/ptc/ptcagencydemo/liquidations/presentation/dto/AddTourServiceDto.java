@@ -17,18 +17,18 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AddTourServiceDto {
-    
-    @NotNull(message = "Tariff rate is required")
-    @Positive(message = "Tariff rate must be positive")
+
+    @NotNull(message = "La tarifa de la tasa de comisión es obligatoria")
+    @Positive(message = "La tarifa de la tasa de comisión debe ser positiva")
     private Float tariffRate;
     
-    @NotNull(message = "Is taxed field is required")
+    @NotNull(message = "El campo de impuesto es obligatorio")
     private Boolean isTaxed;
-    
-    @NotBlank(message = "Currency is required")
+
+    @NotBlank(message = "El campo de moneda es obligatorio")
     private String currency;
-    
-    @NotEmpty(message = "At least one tour is required")
+
+    @NotEmpty(message = "Se requiere al menos un tour")
     @Valid
     private List<TourDto> tours;
 }
