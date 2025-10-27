@@ -10,9 +10,11 @@ import com.tripagency.ptc.ptcagencydemo.customers.infrastructure.entities.Custom
 @Mapper
 public interface ICustomerLombokMapper {
     Customer toPersistence(DCustomer domainCustomer);
+
     DCustomer toDomain(Customer persistenceCustomer);
 
-    // MapStruct will pick these helper methods to convert Optional<String> <-> String
+    // MapStruct will pick these helper methods to convert Optional<String> <->
+    // String
     default String map(Optional<String> value) {
         return value != null && value.isPresent() ? value.get() : null;
     }
