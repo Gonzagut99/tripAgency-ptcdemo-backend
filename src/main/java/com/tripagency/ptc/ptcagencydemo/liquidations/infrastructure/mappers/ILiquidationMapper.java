@@ -60,15 +60,16 @@ public interface ILiquidationMapper {
     List<DLiquidation> toDomainList(List<Liquidation> infrastructureList);
     
     @org.mapstruct.AfterMapping
-    default void mapRelationships(@org.mapstruct.MappingTarget DLiquidation target, Liquidation source,
-            ICustomerLombokMapper customerMapper, IStaffLombokMapper staffMapper) {
+    default void mapRelationships(@org.mapstruct.MappingTarget DLiquidation target, Liquidation source) {
         if (source.getCustomer() != null) {
+            ICustomerLombokMapper customerMapper = org.mapstruct.factory.Mappers.getMapper(ICustomerLombokMapper.class);
             target.setCustomer(java.util.Optional.of(customerMapper.toDomain(source.getCustomer())));
         } else {
             target.setCustomer(java.util.Optional.empty());
         }
         
         if (source.getStaffOnCharge() != null) {
+            IStaffLombokMapper staffMapper = org.mapstruct.factory.Mappers.getMapper(IStaffLombokMapper.class);
             target.setStaffOnCharge(java.util.Optional.of(staffMapper.toDomain(source.getStaffOnCharge())));
         } else {
             target.setStaffOnCharge(java.util.Optional.empty());

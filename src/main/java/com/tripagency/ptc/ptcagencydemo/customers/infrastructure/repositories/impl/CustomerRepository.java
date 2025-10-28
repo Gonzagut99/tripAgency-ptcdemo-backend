@@ -40,6 +40,13 @@ public class CustomerRepository implements ICustomerRepository {
     }
 
     @Override
+    public java.util.List<DCustomer> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(this.mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Page<DCustomer> findAll(Pageable pageConfig) {
         Page<Customer> dbCustomers = jpaRepository.findAll(pageConfig);
         return dbCustomers.map(this.mapper::toDomain);

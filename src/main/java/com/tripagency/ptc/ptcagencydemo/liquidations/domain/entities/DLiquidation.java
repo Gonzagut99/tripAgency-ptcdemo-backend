@@ -55,6 +55,8 @@ public class DLiquidation extends BaseAbstractDomainEntity {
         this.tourServices = new ArrayList<>();
         this.additionalServices = new ArrayList<>();
         this.incidencies = new ArrayList<>();
+        this.customer = Optional.empty();
+        this.staffOnCharge = Optional.empty();
     }
 
     private void validateLiquidation(float currencyRate, LocalDateTime paymentDeadline, int companion,
