@@ -28,11 +28,15 @@ public class PaginatedRequestDto {
 
     @Builder
     public PaginatedRequestDto(@Nullable Integer page, @Nullable Integer size) {
-        if (page != null) {
-            this.page = page;
-        }
-        if (size != null) {
-            this.size = size;
+        this.page = (page != null && page > 0) ? page - 1 : 0;
+        this.size = (size != null && size > 0) ? size : 10;
+    }
+
+    public void normalizePageNumber(){
+        if (this.page != null && this.page > 0) {
+            this.page = this.page - 1;
+        } else {
+            this.page = 0;
         }
     }
 }

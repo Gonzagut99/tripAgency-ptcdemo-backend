@@ -2,6 +2,7 @@ package com.tripagency.ptc.ptcagencydemo.customers.application.queries.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.tripagency.ptc.ptcagencydemo.customers.application.queries.CustomerPaginatedQuery;
@@ -20,7 +21,8 @@ public class CustomerPaginatedQueryHandler {
 
     public Page<DCustomer> execute(CustomerPaginatedQuery query) {
         try {
-            return customerRepository.findAll(query.paginationConfig().getPage(), query.paginationConfig().getSize());
+            Page<DCustomer> customers = customerRepository.findAll(PageRequest.of(query.paginationConfig().getPage(), query.paginationConfig().getSize()));
+            return customers;
         } catch (Exception e) {
             throw HtpExceptionUtils.processHttpException(e);
         }
