@@ -4,15 +4,22 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tripagency.ptc.ptcagencydemo.customers.application.commands.CreateCustomerCommand;
+import com.tripagency.ptc.ptcagencydemo.customers.application.commands.DeactivateCustomerCommand;
+import com.tripagency.ptc.ptcagencydemo.customers.application.commands.UpdateCustomerCommand;
 import com.tripagency.ptc.ptcagencydemo.customers.application.commands.handlers.CreateCustomerCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.customers.application.commands.handlers.DeactivateCustomerCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.customers.application.commands.handlers.UpdateCustomerCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.customers.application.queries.CustomerPaginatedQuery;
 import com.tripagency.ptc.ptcagencydemo.customers.application.queries.GetAllCustomersQuery;
 import com.tripagency.ptc.ptcagencydemo.customers.application.queries.handlers.CustomerPaginatedQueryHandler;
@@ -20,6 +27,7 @@ import com.tripagency.ptc.ptcagencydemo.customers.application.queries.handlers.G
 import com.tripagency.ptc.ptcagencydemo.customers.domain.entities.DCustomer;
 import com.tripagency.ptc.ptcagencydemo.customers.presentation.dto.CreateCustomerDto;
 import com.tripagency.ptc.ptcagencydemo.customers.presentation.dto.PaginatedCustomerRequestDto;
+import com.tripagency.ptc.ptcagencydemo.customers.presentation.dto.UpdateCustomerDto;
 import com.tripagency.ptc.ptcagencydemo.general.entities.domainEntities.GeneralException;
 import com.tripagency.ptc.ptcagencydemo.general.presentation.controllers.BaseV1Controller;
 import com.tripagency.ptc.ptcagencydemo.general.presentation.exception.ErrorBody;
@@ -29,6 +37,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -38,12 +47,20 @@ public class CustomerController extends BaseV1Controller {
 
     private final CustomerPaginatedQueryHandler customerPaginatedQueryHandler;
     private final CreateCustomerCommandHandler createCustomerCommandHandler;
+    private final UpdateCustomerCommandHandler updateCustomerCommandHandler;
+    private final DeactivateCustomerCommandHandler deactivateCustomerCommandHandler;
     private final GetAllCustomersQueryHandler getAllCustomersQueryHandler;
 
     @Autowired
-    public CustomerController(CustomerPaginatedQueryHandler customerPaginatedQueryHandler, CreateCustomerCommandHandler createCustomerCommandHandler, GetAllCustomersQueryHandler getAllCustomersQueryHandler) {
+    public CustomerController(CustomerPaginatedQueryHandler customerPaginatedQueryHandler, 
+                             CreateCustomerCommandHandler createCustomerCommandHandler, 
+                             UpdateCustomerCommandHandler updateCustomerCommandHandler,
+                             DeactivateCustomerCommandHandler deactivateCustomerCommandHandler,
+                             GetAllCustomersQueryHandler getAllCustomersQueryHandler) {
         this.customerPaginatedQueryHandler = customerPaginatedQueryHandler;
         this.createCustomerCommandHandler = createCustomerCommandHandler;
+        this.updateCustomerCommandHandler = updateCustomerCommandHandler;
+        this.deactivateCustomerCommandHandler = deactivateCustomerCommandHandler;
         this.getAllCustomersQueryHandler = getAllCustomersQueryHandler;
     }
 
@@ -84,6 +101,33 @@ public class CustomerController extends BaseV1Controller {
     public DCustomer saveCustomers(@RequestBody CreateCustomerDto entity) {
         DCustomer createdCustomer = createCustomerCommandHandler.execute(new CreateCustomerCommand(entity));
         return createdCustomer;
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+        summary = "Actualizar cliente",
+        description = "Actualiza la información de un cliente existente.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Cliente actualizado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DCustomer.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class))),
+            @ApiResponse(responseCode = "404", description = "Cliente no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class)))
+        }
+    )
+    public DCustomer updateCustomer(@PathVariable Long id, @Valid @RequestBody UpdateCustomerDto dto) {
+        return updateCustomerCommandHandler.execute(new UpdateCustomerCommand(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(
+        summary = "Desactivar cliente",
+        description = "Desactiva (soft delete) un cliente existente.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Cliente desactivado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DCustomer.class))),
+            @ApiResponse(responseCode = "404", description = "Cliente no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class)))
+        }
+    )
+    public DCustomer deactivateCustomer(@PathVariable Long id) {
+        return deactivateCustomerCommandHandler.execute(new DeactivateCustomerCommand(id));
     }
 
 

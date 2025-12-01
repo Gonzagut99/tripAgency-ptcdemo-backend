@@ -1,10 +1,12 @@
 package com.tripagency.ptc.ptcagencydemo.users.presentation.controllers;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,7 +15,11 @@ import com.tripagency.ptc.ptcagencydemo.general.entities.domainEntities.GeneralE
 import com.tripagency.ptc.ptcagencydemo.general.presentation.controllers.BaseV1Controller;
 import com.tripagency.ptc.ptcagencydemo.general.presentation.exception.ErrorBody;
 import com.tripagency.ptc.ptcagencydemo.users.application.commands.CreateUserCommand;
+import com.tripagency.ptc.ptcagencydemo.users.application.commands.DeactivateUserCommand;
+import com.tripagency.ptc.ptcagencydemo.users.application.commands.UpdateUserCommand;
 import com.tripagency.ptc.ptcagencydemo.users.application.commands.handlers.CreateUserCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.users.application.commands.handlers.DeactivateUserCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.users.application.commands.handlers.UpdateUserCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.users.application.queries.GetUserByIdQuery;
 import com.tripagency.ptc.ptcagencydemo.users.application.queries.UserPaginatedQuery;
 import com.tripagency.ptc.ptcagencydemo.users.application.queries.handlers.GetUserByIdQueryHandler;
@@ -21,6 +27,7 @@ import com.tripagency.ptc.ptcagencydemo.users.application.queries.handlers.UserP
 import com.tripagency.ptc.ptcagencydemo.users.domain.entities.DUser;
 import com.tripagency.ptc.ptcagencydemo.users.presentation.dto.CreateUserDto;
 import com.tripagency.ptc.ptcagencydemo.users.presentation.dto.PaginatedUserRequestDto;
+import com.tripagency.ptc.ptcagencydemo.users.presentation.dto.UpdateUserDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,13 +42,19 @@ import jakarta.validation.Valid;
 public class UserController extends BaseV1Controller {
 
     private final CreateUserCommandHandler createUserCommandHandler;
+    private final UpdateUserCommandHandler updateUserCommandHandler;
+    private final DeactivateUserCommandHandler deactivateUserCommandHandler;
     private final GetUserByIdQueryHandler getUserByIdQueryHandler;
     private final UserPaginatedQueryHandler userPaginatedQueryHandler;
 
     public UserController(CreateUserCommandHandler createUserCommandHandler,
+                         UpdateUserCommandHandler updateUserCommandHandler,
+                         DeactivateUserCommandHandler deactivateUserCommandHandler,
                          GetUserByIdQueryHandler getUserByIdQueryHandler,
                          UserPaginatedQueryHandler userPaginatedQueryHandler) {
         this.createUserCommandHandler = createUserCommandHandler;
+        this.updateUserCommandHandler = updateUserCommandHandler;
+        this.deactivateUserCommandHandler = deactivateUserCommandHandler;
         this.getUserByIdQueryHandler = getUserByIdQueryHandler;
         this.userPaginatedQueryHandler = userPaginatedQueryHandler;
     }
@@ -85,5 +98,32 @@ public class UserController extends BaseV1Controller {
         requestDto.normalizePageNumber();
         UserPaginatedQuery query = new UserPaginatedQuery(requestDto);
         return userPaginatedQueryHandler.execute(query);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+        summary = "Actualizar usuario",
+        description = "Actualiza la información de un usuario existente.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DUser.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class)))
+        }
+    )
+    public DUser updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDto dto) {
+        return updateUserCommandHandler.execute(new UpdateUserCommand(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(
+        summary = "Desactivar usuario",
+        description = "Desactiva (soft delete) un usuario existente.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Usuario desactivado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DUser.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class)))
+        }
+    )
+    public DUser deactivateUser(@PathVariable Long id) {
+        return deactivateUserCommandHandler.execute(new DeactivateUserCommand(id));
     }
 }

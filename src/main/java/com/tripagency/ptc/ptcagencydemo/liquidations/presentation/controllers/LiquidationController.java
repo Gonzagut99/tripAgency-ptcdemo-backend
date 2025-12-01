@@ -3,6 +3,7 @@ package com.tripagency.ptc.ptcagencydemo.liquidations.presentation.controllers;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddInc
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddPaymentCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddTourServiceCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.CreateLiquidationCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.DeactivateAdditionalServiceCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.DeactivateFlightBookingCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.DeactivateHotelBookingCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.DeactivateIncidencyCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.DeactivateLiquidationCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.DeactivatePaymentCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.DeactivateTourCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateAdditionalServiceCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateFlightBookingCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateHotelBookingCommand;
@@ -32,6 +40,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handle
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddPaymentCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddTourServiceCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.CreateLiquidationCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.DeactivateAdditionalServiceCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.DeactivateFlightBookingCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.DeactivateHotelBookingCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.DeactivateIncidencyCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.DeactivateLiquidationCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.DeactivatePaymentCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.DeactivateTourCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdateAdditionalServiceCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdateFlightBookingCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdateHotelBookingCommandHandler;
@@ -49,6 +64,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handler
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DLiquidation;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentMethod;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.AdditionalServices;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.FlightBooking;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.HotelBooking;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Incidency;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Liquidation;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Payment;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Tour;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddAdditionalServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddFlightServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddHotelServiceDto;
@@ -64,12 +86,6 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateHote
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateIncidencyDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdatePaymentDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateTourDto;
-import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.AdditionalServices;
-import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.FlightBooking;
-import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.HotelBooking;
-import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Incidency;
-import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Payment;
-import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Tour;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -97,6 +113,13 @@ public class LiquidationController {
     private final UpdateAdditionalServiceCommandHandler updateAdditionalServiceCommandHandler;
     private final UpdatePaymentCommandHandler updatePaymentCommandHandler;
     private final UpdateIncidencyCommandHandler updateIncidencyCommandHandler;
+    private final DeactivateLiquidationCommandHandler deactivateLiquidationCommandHandler;
+    private final DeactivateTourCommandHandler deactivateTourCommandHandler;
+    private final DeactivateHotelBookingCommandHandler deactivateHotelBookingCommandHandler;
+    private final DeactivateFlightBookingCommandHandler deactivateFlightBookingCommandHandler;
+    private final DeactivateAdditionalServiceCommandHandler deactivateAdditionalServiceCommandHandler;
+    private final DeactivatePaymentCommandHandler deactivatePaymentCommandHandler;
+    private final DeactivateIncidencyCommandHandler deactivateIncidencyCommandHandler;
 
     public LiquidationController(
             CreateLiquidationCommandHandler createLiquidationCommandHandler,
@@ -115,7 +138,14 @@ public class LiquidationController {
             UpdateFlightBookingCommandHandler updateFlightBookingCommandHandler,
             UpdateAdditionalServiceCommandHandler updateAdditionalServiceCommandHandler,
             UpdatePaymentCommandHandler updatePaymentCommandHandler,
-            UpdateIncidencyCommandHandler updateIncidencyCommandHandler) {
+            UpdateIncidencyCommandHandler updateIncidencyCommandHandler,
+            DeactivateLiquidationCommandHandler deactivateLiquidationCommandHandler,
+            DeactivateTourCommandHandler deactivateTourCommandHandler,
+            DeactivateHotelBookingCommandHandler deactivateHotelBookingCommandHandler,
+            DeactivateFlightBookingCommandHandler deactivateFlightBookingCommandHandler,
+            DeactivateAdditionalServiceCommandHandler deactivateAdditionalServiceCommandHandler,
+            DeactivatePaymentCommandHandler deactivatePaymentCommandHandler,
+            DeactivateIncidencyCommandHandler deactivateIncidencyCommandHandler) {
         this.createLiquidationCommandHandler = createLiquidationCommandHandler;
         this.liquidationPaginatedQueryHandler = liquidationPaginatedQueryHandler;
         this.getLiquidationByIdQueryHandler = getLiquidationByIdQueryHandler;
@@ -133,6 +163,13 @@ public class LiquidationController {
         this.updateAdditionalServiceCommandHandler = updateAdditionalServiceCommandHandler;
         this.updatePaymentCommandHandler = updatePaymentCommandHandler;
         this.updateIncidencyCommandHandler = updateIncidencyCommandHandler;
+        this.deactivateLiquidationCommandHandler = deactivateLiquidationCommandHandler;
+        this.deactivateTourCommandHandler = deactivateTourCommandHandler;
+        this.deactivateHotelBookingCommandHandler = deactivateHotelBookingCommandHandler;
+        this.deactivateFlightBookingCommandHandler = deactivateFlightBookingCommandHandler;
+        this.deactivateAdditionalServiceCommandHandler = deactivateAdditionalServiceCommandHandler;
+        this.deactivatePaymentCommandHandler = deactivatePaymentCommandHandler;
+        this.deactivateIncidencyCommandHandler = deactivateIncidencyCommandHandler;
     }
 
     @PostMapping
@@ -319,5 +356,78 @@ public class LiquidationController {
         UpdateIncidencyCommand command = new UpdateIncidencyCommand(liquidationId, incidencyId, dto);
         Incidency updatedIncidency = updateIncidencyCommandHandler.execute(command);
         return ResponseEntity.ok(updatedIncidency);
+    }
+
+    // ============== DELETE (Soft Delete) Endpoints ==============
+
+    @DeleteMapping("/{liquidationId}")
+    @Operation(summary = "Desactivar (soft delete) una liquidación")
+    public ResponseEntity<Liquidation> deactivateLiquidation(@PathVariable Long liquidationId) {
+        DeactivateLiquidationCommand command = new DeactivateLiquidationCommand(liquidationId);
+        Liquidation result = deactivateLiquidationCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{liquidationId}/tour-services/{tourServiceId}/tours/{tourId}")
+    @Operation(summary = "Desactivar (soft delete) un tour")
+    public ResponseEntity<Tour> deactivateTour(
+            @PathVariable Long liquidationId,
+            @PathVariable Long tourServiceId,
+            @PathVariable Long tourId) {
+        DeactivateTourCommand command = new DeactivateTourCommand(liquidationId, tourServiceId, tourId);
+        Tour result = deactivateTourCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{liquidationId}/hotel-services/{hotelServiceId}/bookings/{hotelBookingId}")
+    @Operation(summary = "Desactivar (soft delete) una reserva de hotel")
+    public ResponseEntity<HotelBooking> deactivateHotelBooking(
+            @PathVariable Long liquidationId,
+            @PathVariable Long hotelServiceId,
+            @PathVariable Long hotelBookingId) {
+        DeactivateHotelBookingCommand command = new DeactivateHotelBookingCommand(liquidationId, hotelServiceId, hotelBookingId);
+        HotelBooking result = deactivateHotelBookingCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{liquidationId}/flight-services/{flightServiceId}/bookings/{flightBookingId}")
+    @Operation(summary = "Desactivar (soft delete) una reserva de vuelo")
+    public ResponseEntity<FlightBooking> deactivateFlightBooking(
+            @PathVariable Long liquidationId,
+            @PathVariable Long flightServiceId,
+            @PathVariable Long flightBookingId) {
+        DeactivateFlightBookingCommand command = new DeactivateFlightBookingCommand(liquidationId, flightServiceId, flightBookingId);
+        FlightBooking result = deactivateFlightBookingCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{liquidationId}/additional-services/{additionalServiceId}")
+    @Operation(summary = "Desactivar (soft delete) un servicio adicional")
+    public ResponseEntity<AdditionalServices> deactivateAdditionalService(
+            @PathVariable Long liquidationId,
+            @PathVariable Long additionalServiceId) {
+        DeactivateAdditionalServiceCommand command = new DeactivateAdditionalServiceCommand(liquidationId, additionalServiceId);
+        AdditionalServices result = deactivateAdditionalServiceCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{liquidationId}/payments/{paymentId}")
+    @Operation(summary = "Desactivar (soft delete) un pago")
+    public ResponseEntity<Payment> deactivatePayment(
+            @PathVariable Long liquidationId,
+            @PathVariable Long paymentId) {
+        DeactivatePaymentCommand command = new DeactivatePaymentCommand(liquidationId, paymentId);
+        Payment result = deactivatePaymentCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{liquidationId}/incidencies/{incidencyId}")
+    @Operation(summary = "Desactivar (soft delete) una incidencia")
+    public ResponseEntity<Incidency> deactivateIncidency(
+            @PathVariable Long liquidationId,
+            @PathVariable Long incidencyId) {
+        DeactivateIncidencyCommand command = new DeactivateIncidencyCommand(liquidationId, incidencyId);
+        Incidency result = deactivateIncidencyCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
     }
 }

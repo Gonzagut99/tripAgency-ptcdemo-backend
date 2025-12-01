@@ -3,10 +3,12 @@ package com.tripagency.ptc.ptcagencydemo.users.presentation.controllers;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,8 +18,12 @@ import com.tripagency.ptc.ptcagencydemo.general.presentation.controllers.BaseV1C
 import com.tripagency.ptc.ptcagencydemo.general.presentation.exception.ErrorBody;
 import com.tripagency.ptc.ptcagencydemo.users.application.commands.CreateStaffCommand;
 import com.tripagency.ptc.ptcagencydemo.users.application.commands.CreateUserWithStaffCommand;
+import com.tripagency.ptc.ptcagencydemo.users.application.commands.DeactivateStaffCommand;
+import com.tripagency.ptc.ptcagencydemo.users.application.commands.UpdateStaffCommand;
 import com.tripagency.ptc.ptcagencydemo.users.application.commands.handlers.CreateStaffCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.users.application.commands.handlers.CreateUserWithStaffCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.users.application.commands.handlers.DeactivateStaffCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.users.application.commands.handlers.UpdateStaffCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.users.application.queries.GetStaffByIdQuery;
 import com.tripagency.ptc.ptcagencydemo.users.application.queries.GetStaffByRoleQuery;
 import com.tripagency.ptc.ptcagencydemo.users.application.queries.StaffPaginatedQuery;
@@ -29,6 +35,7 @@ import com.tripagency.ptc.ptcagencydemo.users.domain.enums.DRoles;
 import com.tripagency.ptc.ptcagencydemo.users.presentation.dto.CreateStaffDto;
 import com.tripagency.ptc.ptcagencydemo.users.presentation.dto.CreateUserWithStaffDto;
 import com.tripagency.ptc.ptcagencydemo.users.presentation.dto.PaginatedStaffRequestDto;
+import com.tripagency.ptc.ptcagencydemo.users.presentation.dto.UpdateStaffDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,17 +51,23 @@ public class StaffController extends BaseV1Controller {
 
     private final CreateStaffCommandHandler createStaffCommandHandler;
     private final CreateUserWithStaffCommandHandler createUserWithStaffCommandHandler;
+    private final UpdateStaffCommandHandler updateStaffCommandHandler;
+    private final DeactivateStaffCommandHandler deactivateStaffCommandHandler;
     private final GetStaffByIdQueryHandler getStaffByIdQueryHandler;
     private final StaffPaginatedQueryHandler staffPaginatedQueryHandler;
     private final GetStaffByRoleQueryHandler getStaffByRoleQueryHandler;
 
     public StaffController(CreateStaffCommandHandler createStaffCommandHandler,
                           CreateUserWithStaffCommandHandler createUserWithStaffCommandHandler,
+                          UpdateStaffCommandHandler updateStaffCommandHandler,
+                          DeactivateStaffCommandHandler deactivateStaffCommandHandler,
                           GetStaffByIdQueryHandler getStaffByIdQueryHandler,
                           StaffPaginatedQueryHandler staffPaginatedQueryHandler,
                           GetStaffByRoleQueryHandler getStaffByRoleQueryHandler) {
         this.createStaffCommandHandler = createStaffCommandHandler;
         this.createUserWithStaffCommandHandler = createUserWithStaffCommandHandler;
+        this.updateStaffCommandHandler = updateStaffCommandHandler;
+        this.deactivateStaffCommandHandler = deactivateStaffCommandHandler;
         this.getStaffByIdQueryHandler = getStaffByIdQueryHandler;
         this.staffPaginatedQueryHandler = staffPaginatedQueryHandler;
         this.getStaffByRoleQueryHandler = getStaffByRoleQueryHandler;
@@ -126,5 +139,32 @@ public class StaffController extends BaseV1Controller {
     public List<DStaff> getStaffByRole(@PathVariable String role) {
         DRoles dRole = DRoles.valueOf(role.toUpperCase());
         return getStaffByRoleQueryHandler.execute(new GetStaffByRoleQuery(dRole));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+        summary = "Actualizar staff",
+        description = "Actualiza la información de un miembro del personal existente.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Staff actualizado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DStaff.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class))),
+            @ApiResponse(responseCode = "404", description = "Staff no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class)))
+        }
+    )
+    public DStaff updateStaff(@PathVariable Long id, @Valid @RequestBody UpdateStaffDto dto) {
+        return updateStaffCommandHandler.execute(new UpdateStaffCommand(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(
+        summary = "Desactivar staff",
+        description = "Desactiva (soft delete) un miembro del personal existente.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Staff desactivado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DStaff.class))),
+            @ApiResponse(responseCode = "404", description = "Staff no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorBody.class)))
+        }
+    )
+    public DStaff deactivateStaff(@PathVariable Long id) {
+        return deactivateStaffCommandHandler.execute(new DeactivateStaffCommand(id));
     }
 }
