@@ -5,6 +5,7 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DCurrency;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentMethod;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentValidity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,12 +13,25 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Schema(description = "Entidad de dominio para pagos")
 public class DPayment extends BaseAbstractDomainEntity {
+    
+    @Schema(description = "Método de pago utilizado")
     private DPaymentMethod method;
+    
+    @Schema(description = "Monto del pago")
     private float amount;
+    
+    @Schema(description = "Moneda del pago (PEN o USD)")
     private DCurrency currency;
+    
+    @Schema(description = "ID de la liquidación asociada")
     private Long liquidationId;
+    
+    @Schema(description = "Estado de validación del pago")
     private DPaymentValidity validationStatus;
+    
+    @Schema(description = "URL de la evidencia del pago (imagen o PDF)")
     private String evidenceUrl;
 
     public DPayment(DPaymentMethod method, float amount, DCurrency currency, Long liquidationId) {
