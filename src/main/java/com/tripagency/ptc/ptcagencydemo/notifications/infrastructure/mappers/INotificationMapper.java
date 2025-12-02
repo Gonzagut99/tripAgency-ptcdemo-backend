@@ -1,7 +1,5 @@
 package com.tripagency.ptc.ptcagencydemo.notifications.infrastructure.mappers;
 
-import java.util.Optional;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -11,19 +9,19 @@ import com.tripagency.ptc.ptcagencydemo.notifications.infrastructure.entities.No
 @Mapper(componentModel = "spring", uses = {INotificationEnumMapper.class})
 public interface INotificationMapper {
     
+    @Mapping(target = "title", source = "title")
+    @Mapping(target = "message", source = "message")
+    @Mapping(target = "type", source = "type")
     @Mapping(target = "scope", source = "scope")
-    @Mapping(target = "referenceId", expression = "java(mapOptionalToString(domain.getReferenceId()))")
+    @Mapping(target = "referenceId", source = "referenceId")
+    @Mapping(target = "referenceType", source = "referenceType")
     Notification toInfrastructure(DNotification domain);
     
+    @Mapping(target = "title", source = "title")
+    @Mapping(target = "message", source = "message")
+    @Mapping(target = "type", source = "type")
     @Mapping(target = "scope", source = "scope")
-    @Mapping(target = "referenceId", expression = "java(mapStringToOptional(infrastructure.getReferenceId()))")
+    @Mapping(target = "referenceId", source = "referenceId")
+    @Mapping(target = "referenceType", source = "referenceType")
     DNotification toDomain(Notification infrastructure);
-    
-    default String mapOptionalToString(Optional<String> optional) {
-        return optional.orElse(null);
-    }
-    
-    default Optional<String> mapStringToOptional(String value) {
-        return Optional.ofNullable(value);
-    }
 }

@@ -1,9 +1,11 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateLiquidationStatusCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.events.LiquidationStatusChangedDomainEvent;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DLiquidation;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentStatus;
@@ -14,9 +16,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.domain.repositories.ILiquid
 public class UpdateLiquidationStatusCommandHandler {
 
     private final ILiquidationRepository liquidationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public UpdateLiquidationStatusCommandHandler(ILiquidationRepository liquidationRepository) {
+    public UpdateLiquidationStatusCommandHandler(
+            ILiquidationRepository liquidationRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.liquidationRepository = liquidationRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public DLiquidation execute(UpdateLiquidationStatusCommand command) {
@@ -33,7 +39,21 @@ public class UpdateLiquidationStatusCommandHandler {
         // Apply the transition
         liquidation.setStatus(targetStatus);
 
-        return liquidationRepository.save(liquidation);
+        DLiquidation savedLiquidation = liquidationRepository.save(liquidation);
+
+        // Generar identificador de archivo
+        String file = String.format("#%06d", command.liquidationId());
+
+        // Publicar evento de dominio
+        eventPublisher.publishEvent(new LiquidationStatusChangedDomainEvent(
+            command.liquidationId(),
+            file,
+            currentStatus.name(),
+            targetStatus.name(),
+            liquidation.getStaffId()
+        ));
+
+        return savedLiquidation;
     }
 
     private void validateStateTransition(DLiquidationStatus current, DLiquidationStatus target, DLiquidation liquidation) {

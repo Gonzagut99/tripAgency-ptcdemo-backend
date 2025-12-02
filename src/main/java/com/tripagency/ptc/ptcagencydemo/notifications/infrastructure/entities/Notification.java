@@ -2,6 +2,7 @@ package com.tripagency.ptc.ptcagencydemo.notifications.infrastructure.entities;
 
 import com.tripagency.ptc.ptcagencydemo.general.entities.repositoryEntites.BaseAbstractEntity;
 import com.tripagency.ptc.ptcagencydemo.notifications.infrastructure.enums.NotificationScope;
+import com.tripagency.ptc.ptcagencydemo.notifications.infrastructure.enums.NotificationType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,8 +20,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Notification extends BaseAbstractEntity {
     
+    @Column(length = 200)
+    private String title;
+    
     @Column(nullable = false, length = 500)
     private String message;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationType type;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -28,4 +36,7 @@ public class Notification extends BaseAbstractEntity {
     
     @Column(name = "reference_id")
     private String referenceId;
+    
+    @Column(name = "reference_type", length = 50)
+    private String referenceType;
 }

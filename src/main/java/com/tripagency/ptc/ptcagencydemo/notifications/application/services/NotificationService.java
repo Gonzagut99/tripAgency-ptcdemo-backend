@@ -10,6 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.tripagency.ptc.ptcagencydemo.notifications.domain.entities.DNotification;
 import com.tripagency.ptc.ptcagencydemo.notifications.domain.entities.DUserNotification;
 import com.tripagency.ptc.ptcagencydemo.notifications.domain.enums.DNotificationScope;
+import com.tripagency.ptc.ptcagencydemo.notifications.domain.enums.DNotificationType;
 import com.tripagency.ptc.ptcagencydemo.notifications.domain.repositories.INotificationRepository;
 import com.tripagency.ptc.ptcagencydemo.notifications.domain.repositories.IUserNotificationRepository;
 
@@ -58,15 +59,25 @@ public class NotificationService {
     }
 
     /**
-     * Envía una notificación según el scope
+     * Envía una notificación completa con todos los campos
+     * @param title Título de la notificación
      * @param message Mensaje de la notificación
+     * @param type Tipo de notificación
      * @param scope Alcance de la notificación (ALL, SELF, OTHERS)
      * @param referenceId ID de referencia opcional (ej: liquidationId)
+     * @param referenceType Tipo de referencia (ej: "LIQUIDATION", "CUSTOMER")
      * @param triggerUserId ID del usuario que generó la acción
      */
-    public void sendNotification(String message, DNotificationScope scope, Optional<String> referenceId, Long triggerUserId) {
+    public void sendNotification(
+            String title,
+            String message, 
+            DNotificationType type,
+            DNotificationScope scope, 
+            String referenceId, 
+            String referenceType,
+            Long triggerUserId) {
         // Guardar la notificación en la base de datos
-        DNotification notification = new DNotification(message, scope, referenceId);
+        DNotification notification = new DNotification(title, message, type, scope, referenceId, referenceType);
         DNotification savedNotification = notificationRepository.save(notification);
         
         // Determinar a qué usuarios enviar
@@ -81,6 +92,25 @@ public class NotificationService {
                 sendToOthers(savedNotification, triggerUserId);
                 break;
         }
+    }
+
+    /**
+     * Envía una notificación según el scope (método de compatibilidad)
+     * @param message Mensaje de la notificación
+     * @param scope Alcance de la notificación (ALL, SELF, OTHERS)
+     * @param referenceId ID de referencia opcional (ej: liquidationId)
+     * @param triggerUserId ID del usuario que generó la acción
+     */
+    public void sendNotification(String message, DNotificationScope scope, Optional<String> referenceId, Long triggerUserId) {
+        sendNotification(
+            "Notificación",
+            message,
+            DNotificationType.SYSTEM_INFO,
+            scope,
+            referenceId.orElse(null),
+            null,
+            triggerUserId
+        );
     }
 
     private void sendToAllUsers(DNotification notification) {

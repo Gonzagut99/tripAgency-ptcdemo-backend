@@ -1,9 +1,11 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.AddPaymentCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.events.PaymentAddedDomainEvent;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DLiquidation;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DPayment;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.repositories.ILiquidationRepository;
@@ -12,9 +14,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.domain.repositories.ILiquid
 public class AddPaymentCommandHandler {
     
     private final ILiquidationRepository liquidationRepository;
+    private final ApplicationEventPublisher eventPublisher;
     
-    public AddPaymentCommandHandler(ILiquidationRepository liquidationRepository) {
+    public AddPaymentCommandHandler(
+            ILiquidationRepository liquidationRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.liquidationRepository = liquidationRepository;
+        this.eventPublisher = eventPublisher;
     }
     
     @Transactional
@@ -31,7 +37,21 @@ public class AddPaymentCommandHandler {
         );
         
         liquidation.addPayment(payment);
+        DLiquidation savedLiquidation = liquidationRepository.save(liquidation);
+
+        // Generar identificador de archivo
+        String file = String.format("#%06d", command.liquidationId());
+
+        // Publicar evento de dominio
+        eventPublisher.publishEvent(new PaymentAddedDomainEvent(
+            command.liquidationId(),
+            file,
+            command.paymentMethod().name(),
+            command.currency().name(),
+            (double) command.amount(),
+            liquidation.getStaffId()
+        ));
         
-        return liquidationRepository.save(liquidation);
+        return savedLiquidation;
     }
 }

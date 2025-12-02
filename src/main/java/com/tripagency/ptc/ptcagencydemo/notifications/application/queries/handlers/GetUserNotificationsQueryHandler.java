@@ -23,7 +23,7 @@ public class GetUserNotificationsQueryHandler {
         Pageable pageable = PageRequest.of(
             query.requestDto().getPage(),
             query.requestDto().getSize(),
-            Sort.by(Sort.Direction.DESC, "createdAt")
+            Sort.by(Sort.Direction.DESC, "createdDate")
         );
         return userNotificationRepository.findByUserId(query.userId(), pageable);
     }
