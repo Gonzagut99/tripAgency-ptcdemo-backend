@@ -1,6 +1,7 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities;
 
 import com.tripagency.ptc.ptcagencydemo.general.entities.domainEntities.BaseAbstractDomainEntity;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DCurrency;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentMethod;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentValidity;
 
@@ -14,15 +15,17 @@ import lombok.Setter;
 public class DPayment extends BaseAbstractDomainEntity {
     private DPaymentMethod method;
     private float amount;
+    private DCurrency currency;
     private Long liquidationId;
     private DPaymentValidity validationStatus;
 
-    public DPayment(DPaymentMethod method, float amount, Long liquidationId) {
+    public DPayment(DPaymentMethod method, float amount, DCurrency currency, Long liquidationId) {
         super();
         validatePayment(method, amount, liquidationId);
         
         this.method = method;
         this.amount = amount;
+        this.currency = currency != null ? currency : DCurrency.PEN;
         this.liquidationId = liquidationId;
         this.validationStatus = DPaymentValidity.PENDING;
     }

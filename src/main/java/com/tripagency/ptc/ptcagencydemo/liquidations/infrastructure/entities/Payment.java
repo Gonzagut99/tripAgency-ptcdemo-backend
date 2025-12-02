@@ -1,6 +1,7 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities;
 
 import com.tripagency.ptc.ptcagencydemo.general.entities.repositoryEntites.BaseAbstractEntity;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.Currency;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.PaymentMethod;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.PaymentValidity;
 import jakarta.persistence.*;
@@ -24,6 +25,10 @@ public class Payment extends BaseAbstractEntity {
     @Positive(message = "Amount must be greater than zero")
     @Column(nullable = false)
     private float amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Currency currency = Currency.PEN;
 
     @NotNull(message = "Liquidation ID is required")
     @Column(name = "liquidation_id", nullable = false)

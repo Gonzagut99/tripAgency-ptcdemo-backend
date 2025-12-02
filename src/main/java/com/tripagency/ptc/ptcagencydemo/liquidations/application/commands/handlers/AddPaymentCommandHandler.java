@@ -25,6 +25,7 @@ public class AddPaymentCommandHandler {
         DPayment payment = new DPayment(
             command.paymentMethod(),
             command.amount(),
+            command.currency(),
             command.liquidationId()
         );
         

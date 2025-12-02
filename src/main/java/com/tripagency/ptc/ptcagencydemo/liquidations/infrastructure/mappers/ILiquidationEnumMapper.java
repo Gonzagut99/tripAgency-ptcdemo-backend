@@ -30,4 +30,8 @@ public interface ILiquidationEnumMapper {
     // PaymentValidity
     PaymentValidity toInfrastructure(DPaymentValidity domain);
     DPaymentValidity toDomain(PaymentValidity infrastructure);
+    
+    // Currency
+    Currency toInfrastructure(DCurrency domain);
+    DCurrency toDomain(Currency infrastructure);
 }

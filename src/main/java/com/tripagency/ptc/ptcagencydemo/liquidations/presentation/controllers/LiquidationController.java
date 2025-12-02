@@ -1,7 +1,9 @@
 package com.tripagency.ptc.ptcagencydemo.liquidations.presentation.controllers;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +33,9 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.Update
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateFlightBookingCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateHotelBookingCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateIncidencyCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateLiquidationStatusCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdatePaymentCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdatePaymentStatusCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateTourCommand;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddAdditionalServiceCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.AddFlightServiceCommandHandler;
@@ -51,7 +55,9 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handle
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdateFlightBookingCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdateHotelBookingCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdateIncidencyCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdateLiquidationStatusCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdatePaymentCommandHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdatePaymentStatusCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.handlers.UpdateTourCommandHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.GetLiquidationByIdQuery;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.GetLiquidationsByCustomerQuery;
@@ -61,6 +67,7 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handler
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.GetLiquidationsByCustomerQueryHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.GetLiquidationsByStatusQueryHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.LiquidationPaginatedQueryHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.services.QuotePdfGeneratorService;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DAdditionalServices;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DFlightBooking;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DHotelBooking;
@@ -68,6 +75,7 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DIncidency;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DLiquidation;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DPayment;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DTour;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DCurrency;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentMethod;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.AdditionalServices;
@@ -98,6 +106,8 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateFlig
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateHotelBookingDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateIncidencyDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdatePaymentDto;
+import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdatePaymentStatusDto;
+import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateLiquidationStatusDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateTourDto;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -126,6 +136,8 @@ public class LiquidationController {
     private final UpdateAdditionalServiceCommandHandler updateAdditionalServiceCommandHandler;
     private final UpdatePaymentCommandHandler updatePaymentCommandHandler;
     private final UpdateIncidencyCommandHandler updateIncidencyCommandHandler;
+    private final UpdateLiquidationStatusCommandHandler updateLiquidationStatusCommandHandler;
+    private final UpdatePaymentStatusCommandHandler updatePaymentStatusCommandHandler;
     private final DeactivateLiquidationCommandHandler deactivateLiquidationCommandHandler;
     private final DeactivateTourCommandHandler deactivateTourCommandHandler;
     private final DeactivateHotelBookingCommandHandler deactivateHotelBookingCommandHandler;
@@ -133,6 +145,9 @@ public class LiquidationController {
     private final DeactivateAdditionalServiceCommandHandler deactivateAdditionalServiceCommandHandler;
     private final DeactivatePaymentCommandHandler deactivatePaymentCommandHandler;
     private final DeactivateIncidencyCommandHandler deactivateIncidencyCommandHandler;
+    
+    // Services
+    private final QuotePdfGeneratorService quotePdfGeneratorService;
     
     // Mappers
     private final ILiquidationMapper liquidationMapper;
@@ -161,6 +176,8 @@ public class LiquidationController {
             UpdateAdditionalServiceCommandHandler updateAdditionalServiceCommandHandler,
             UpdatePaymentCommandHandler updatePaymentCommandHandler,
             UpdateIncidencyCommandHandler updateIncidencyCommandHandler,
+            UpdateLiquidationStatusCommandHandler updateLiquidationStatusCommandHandler,
+            UpdatePaymentStatusCommandHandler updatePaymentStatusCommandHandler,
             DeactivateLiquidationCommandHandler deactivateLiquidationCommandHandler,
             DeactivateTourCommandHandler deactivateTourCommandHandler,
             DeactivateHotelBookingCommandHandler deactivateHotelBookingCommandHandler,
@@ -174,7 +191,8 @@ public class LiquidationController {
             IFlightBookingMapper flightBookingMapper,
             IAdditionalServicesMapper additionalServicesMapper,
             IPaymentMapper paymentMapper,
-            IIncidencyMapper incidencyMapper) {
+            IIncidencyMapper incidencyMapper,
+            QuotePdfGeneratorService quotePdfGeneratorService) {
         this.createLiquidationCommandHandler = createLiquidationCommandHandler;
         this.liquidationPaginatedQueryHandler = liquidationPaginatedQueryHandler;
         this.getLiquidationByIdQueryHandler = getLiquidationByIdQueryHandler;
@@ -192,6 +210,8 @@ public class LiquidationController {
         this.updateAdditionalServiceCommandHandler = updateAdditionalServiceCommandHandler;
         this.updatePaymentCommandHandler = updatePaymentCommandHandler;
         this.updateIncidencyCommandHandler = updateIncidencyCommandHandler;
+        this.updateLiquidationStatusCommandHandler = updateLiquidationStatusCommandHandler;
+        this.updatePaymentStatusCommandHandler = updatePaymentStatusCommandHandler;
         this.deactivateLiquidationCommandHandler = deactivateLiquidationCommandHandler;
         this.deactivateTourCommandHandler = deactivateTourCommandHandler;
         this.deactivateHotelBookingCommandHandler = deactivateHotelBookingCommandHandler;
@@ -206,6 +226,7 @@ public class LiquidationController {
         this.additionalServicesMapper = additionalServicesMapper;
         this.paymentMapper = paymentMapper;
         this.incidencyMapper = incidencyMapper;
+        this.quotePdfGeneratorService = quotePdfGeneratorService;
     }
 
     @PostMapping
@@ -239,6 +260,33 @@ public class LiquidationController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{liquidationId}/quote-pdf")
+    @Operation(summary = "Descargar cotización en PDF (solo para estado IN_QUOTE)")
+    public ResponseEntity<byte[]> downloadQuotePdf(@PathVariable Long liquidationId) {
+        GetLiquidationByIdQuery query = new GetLiquidationByIdQuery(liquidationId);
+        return getLiquidationByIdQueryHandler.execute(query)
+                .map(liquidation -> {
+                    // Validate that liquidation is in IN_QUOTE status
+                    if (liquidation.getStatus() != DLiquidationStatus.IN_QUOTE) {
+                        return ResponseEntity.badRequest().<byte[]>build();
+                    }
+                    
+                    byte[] pdfBytes = quotePdfGeneratorService.generateQuotePdf(liquidation);
+                    
+                    String filename = String.format("cotizacion_%06d.pdf", liquidation.getId());
+                    
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_PDF);
+                    headers.setContentDispositionFormData("attachment", filename);
+                    headers.setContentLength(pdfBytes.length);
+                    
+                    return ResponseEntity.ok()
+                            .headers(headers)
+                            .body(pdfBytes);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/customer/{customerId}")
     @Operation(summary = "Obtener liquidaciones paginadas por ID de cliente")
     public Page<LiquidationWithDetailsDto> getLiquidationsByCustomer(
@@ -267,7 +315,8 @@ public class LiquidationController {
         AddPaymentCommand command = new AddPaymentCommand(
                 liquidationId,
                 DPaymentMethod.valueOf(dto.getPaymentMethod()),
-                dto.getAmount());
+                dto.getAmount(),
+                dto.getCurrency() != null ? DCurrency.valueOf(dto.getCurrency()) : DCurrency.PEN);
 
         DLiquidation liquidation = addPaymentCommandHandler.execute(command);
         return ResponseEntity.ok(liquidation);
@@ -465,5 +514,31 @@ public class LiquidationController {
         DeactivateIncidencyCommand command = new DeactivateIncidencyCommand(liquidationId, incidencyId);
         Incidency result = deactivateIncidencyCommandHandler.execute(command);
         return ResponseEntity.ok(incidencyMapper.toDomain(result));
+    }
+
+    // ==================== STATUS TRANSITION ENDPOINTS ====================
+
+    @PutMapping("/{liquidationId}/status")
+    @Operation(summary = "Actualizar estado de la liquidación")
+    public ResponseEntity<DLiquidation> updateLiquidationStatus(
+            @PathVariable Long liquidationId,
+            @Valid @RequestBody UpdateLiquidationStatusDto dto) {
+        UpdateLiquidationStatusCommand command = new UpdateLiquidationStatusCommand(
+                liquidationId,
+                DLiquidationStatus.valueOf(dto.getTargetStatus()));
+        DLiquidation result = updateLiquidationStatusCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/{liquidationId}/payment-status")
+    @Operation(summary = "Actualizar estado de pago de la liquidación")
+    public ResponseEntity<DLiquidation> updatePaymentStatus(
+            @PathVariable Long liquidationId,
+            @Valid @RequestBody UpdatePaymentStatusDto dto) {
+        UpdatePaymentStatusCommand command = new UpdatePaymentStatusCommand(
+                liquidationId,
+                com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentStatus.valueOf(dto.getTargetStatus()));
+        DLiquidation result = updatePaymentStatusCommandHandler.execute(command);
+        return ResponseEntity.ok(result);
     }
 }
