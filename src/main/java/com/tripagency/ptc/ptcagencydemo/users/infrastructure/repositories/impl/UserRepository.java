@@ -36,17 +36,22 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public DUser findById(Long id) {
-        return jpaRepository.findById(id).map(this.mapper::toDomain).orElse(null);
+        return jpaRepository.findByIdAndIsActiveTrue(id).map(this.mapper::toDomain).orElse(null);
     }
 
     @Override
     public DUser findByEmail(String email) {
+        return jpaRepository.findByEmailAndIsActiveTrue(email).map(this.mapper::toDomain).orElse(null);
+    }
+
+    @Override
+    public DUser findByEmailIncludingInactive(String email) {
         return jpaRepository.findByEmail(email).map(this.mapper::toDomain).orElse(null);
     }
 
     @Override
     public Page<DUser> findAll(Pageable pageConfig) {
-        Page<User> dbUsers = jpaRepository.findAll(pageConfig);
+        Page<User> dbUsers = jpaRepository.findByIsActiveTrue(pageConfig);
         return dbUsers.map(this.mapper::toDomain);
     }
 

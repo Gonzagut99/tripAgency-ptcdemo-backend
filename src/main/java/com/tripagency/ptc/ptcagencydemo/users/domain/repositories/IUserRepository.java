@@ -10,6 +10,7 @@ public interface IUserRepository {
     DUser update(DUser user);
     DUser findById(Long id);
     DUser findByEmail(String email);
+    DUser findByEmailIncludingInactive(String email);
     Page<DUser> findAll(Pageable pageConfig);
     DUser deleteById(Long id);
     boolean existsByEmail(String email);

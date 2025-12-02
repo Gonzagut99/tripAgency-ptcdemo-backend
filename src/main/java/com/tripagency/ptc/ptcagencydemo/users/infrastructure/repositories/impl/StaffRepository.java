@@ -41,18 +41,18 @@ public class StaffRepository implements IStaffRepository {
 
     @Override
     public DStaff findById(Long id) {
-        return jpaRepository.findById(id).map(this.mapper::toDomain).orElse(null);
+        return jpaRepository.findByIdAndIsActiveTrue(id).map(this.mapper::toDomain).orElse(null);
     }
 
     @Override
     public DStaff findByUserId(Long userId) {
-        return jpaRepository.findByUserId(userId).map(this.mapper::toDomain).orElse(null);
+        return jpaRepository.findByUserIdAndIsActiveTrue(userId).map(this.mapper::toDomain).orElse(null);
     }
 
     @Override
     public List<DStaff> findByRole(DRoles role) {
         Roles infraRole = Roles.valueOf(role.name());
-        List<Staff> staffList = jpaRepository.findByRole(infraRole);
+        List<Staff> staffList = jpaRepository.findByRoleAndIsActiveTrue(infraRole);
         return staffList.stream()
                 .map(this.mapper::toDomain)
                 .collect(Collectors.toList());
@@ -60,7 +60,7 @@ public class StaffRepository implements IStaffRepository {
 
     @Override
     public Page<DStaff> findAll(Pageable pageConfig) {
-        Page<Staff> dbStaff = jpaRepository.findAll(pageConfig);
+        Page<Staff> dbStaff = jpaRepository.findByIsActiveTrue(pageConfig);
         return dbStaff.map(this.mapper::toDomain);
     }
 

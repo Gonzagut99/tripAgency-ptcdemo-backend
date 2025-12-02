@@ -127,13 +127,13 @@ public class LiquidationRepository implements ILiquidationRepository {
 
     @Override
     public Optional<DLiquidation> findById(Long id) {
-        return jpaRepository.findById(id)
+        return jpaRepository.findByIdAndIsActiveTrue(id)
                 .map(mapper::toDomain);
     }
 
     @Override
     public Page<DLiquidation> findAll(Pageable pageable) {
-        return jpaRepository.findAll(pageable)
+        return jpaRepository.findByIsActiveTrue(pageable)
                 .map(mapper::toDomain);
     }
 
@@ -149,14 +149,14 @@ public class LiquidationRepository implements ILiquidationRepository {
 
     @Override
     public Page<DLiquidation> findByCustomerId(Long customerId, Pageable pageable) {
-        return jpaRepository.findByCustomerId(customerId, pageable)
+        return jpaRepository.findByCustomerIdAndIsActiveTrue(customerId, pageable)
                 .map(mapper::toDomain);
     }
 
     @Override
     public Page<DLiquidation> findByStatus(com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus status, Pageable pageable) {
         var infrastructureStatus = enumMapper.toInfrastructure(status);
-        return jpaRepository.findByStatus(infrastructureStatus, pageable)
+        return jpaRepository.findByStatusAndIsActiveTrue(infrastructureStatus, pageable)
                 .map(mapper::toDomain);
     }
 }

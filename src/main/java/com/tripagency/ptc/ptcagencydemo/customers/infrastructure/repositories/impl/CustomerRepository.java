@@ -36,19 +36,19 @@ public class CustomerRepository implements ICustomerRepository {
 
     @Override
     public DCustomer findById(Long id) {
-        return jpaRepository.findById(id).map(this.mapper::toDomain).orElse(null);
+        return jpaRepository.findByIdAndIsActiveTrue(id).map(this.mapper::toDomain).orElse(null);
     }
 
     @Override
     public java.util.List<DCustomer> findAll() {
-        return jpaRepository.findAll().stream()
+        return jpaRepository.findByIsActiveTrue().stream()
                 .map(this.mapper::toDomain)
                 .toList();
     }
 
     @Override
     public Page<DCustomer> findAll(Pageable pageConfig) {
-        Page<Customer> dbCustomers = jpaRepository.findAll(pageConfig);
+        Page<Customer> dbCustomers = jpaRepository.findByIsActiveTrue(pageConfig);
         return dbCustomers.map(this.mapper::toDomain);
     }
 
