@@ -26,7 +26,8 @@ public class AddPaymentCommandHandler {
             command.paymentMethod(),
             command.amount(),
             command.currency(),
-            command.liquidationId()
+            command.liquidationId(),
+            command.evidenceUrl()
         );
         
         liquidation.addPayment(payment);

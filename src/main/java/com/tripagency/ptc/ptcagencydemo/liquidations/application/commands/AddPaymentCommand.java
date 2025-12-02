@@ -7,5 +7,6 @@ public record AddPaymentCommand(
     Long liquidationId,
     DPaymentMethod paymentMethod,
     float amount,
-    DCurrency currency
+    DCurrency currency,
+    String evidenceUrl
 ) {}

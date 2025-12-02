@@ -18,8 +18,13 @@ public class DPayment extends BaseAbstractDomainEntity {
     private DCurrency currency;
     private Long liquidationId;
     private DPaymentValidity validationStatus;
+    private String evidenceUrl;
 
     public DPayment(DPaymentMethod method, float amount, DCurrency currency, Long liquidationId) {
+        this(method, amount, currency, liquidationId, null);
+    }
+
+    public DPayment(DPaymentMethod method, float amount, DCurrency currency, Long liquidationId, String evidenceUrl) {
         super();
         validatePayment(method, amount, liquidationId);
         
@@ -28,6 +33,7 @@ public class DPayment extends BaseAbstractDomainEntity {
         this.currency = currency != null ? currency : DCurrency.PEN;
         this.liquidationId = liquidationId;
         this.validationStatus = DPaymentValidity.PENDING;
+        this.evidenceUrl = evidenceUrl;
     }
 
     private void validatePayment(DPaymentMethod method, float amount, Long liquidationId) {

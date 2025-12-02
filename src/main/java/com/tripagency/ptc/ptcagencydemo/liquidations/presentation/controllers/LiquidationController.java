@@ -316,7 +316,8 @@ public class LiquidationController {
                 liquidationId,
                 DPaymentMethod.valueOf(dto.getPaymentMethod()),
                 dto.getAmount(),
-                dto.getCurrency() != null ? DCurrency.valueOf(dto.getCurrency()) : DCurrency.PEN);
+                dto.getCurrency() != null ? DCurrency.valueOf(dto.getCurrency()) : DCurrency.PEN,
+                dto.getEvidenceUrl());
 
         DLiquidation liquidation = addPaymentCommandHandler.execute(command);
         return ResponseEntity.ok(liquidation);

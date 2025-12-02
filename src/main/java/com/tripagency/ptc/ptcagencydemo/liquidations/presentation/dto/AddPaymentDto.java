@@ -23,4 +23,6 @@ public class AddPaymentDto {
     private Float amount;
 
     private String currency = "PEN";
+
+    private String evidenceUrl;
 }

@@ -38,6 +38,9 @@ public class Payment extends BaseAbstractEntity {
     @Column(name = "validation_status", nullable = false)
     private PaymentValidity validationStatus;
 
+    @Column(name = "evidence_url")
+    private String evidenceUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "liquidation_id", insertable = false, updatable = false)
     private Liquidation liquidation;
