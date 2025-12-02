@@ -61,7 +61,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handler
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.GetLiquidationsByCustomerQueryHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.GetLiquidationsByStatusQueryHandler;
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.queries.handlers.LiquidationPaginatedQueryHandler;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DAdditionalServices;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DFlightBooking;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DHotelBooking;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DIncidency;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DLiquidation;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DPayment;
+import com.tripagency.ptc.ptcagencydemo.liquidations.domain.entities.DTour;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DLiquidationStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.domain.enums.DPaymentMethod;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.AdditionalServices;
@@ -71,6 +77,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Inc
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Liquidation;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Payment;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Tour;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.mappers.IAdditionalServicesMapper;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.mappers.IFlightBookingMapper;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.mappers.IHotelBookingMapper;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.mappers.IIncidencyMapper;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.mappers.ILiquidationMapper;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.mappers.IPaymentMapper;
+import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.mappers.ITourMapper;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddAdditionalServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddFlightServiceDto;
 import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.AddHotelServiceDto;
@@ -120,6 +133,15 @@ public class LiquidationController {
     private final DeactivateAdditionalServiceCommandHandler deactivateAdditionalServiceCommandHandler;
     private final DeactivatePaymentCommandHandler deactivatePaymentCommandHandler;
     private final DeactivateIncidencyCommandHandler deactivateIncidencyCommandHandler;
+    
+    // Mappers
+    private final ILiquidationMapper liquidationMapper;
+    private final ITourMapper tourMapper;
+    private final IHotelBookingMapper hotelBookingMapper;
+    private final IFlightBookingMapper flightBookingMapper;
+    private final IAdditionalServicesMapper additionalServicesMapper;
+    private final IPaymentMapper paymentMapper;
+    private final IIncidencyMapper incidencyMapper;
 
     public LiquidationController(
             CreateLiquidationCommandHandler createLiquidationCommandHandler,
@@ -145,7 +167,14 @@ public class LiquidationController {
             DeactivateFlightBookingCommandHandler deactivateFlightBookingCommandHandler,
             DeactivateAdditionalServiceCommandHandler deactivateAdditionalServiceCommandHandler,
             DeactivatePaymentCommandHandler deactivatePaymentCommandHandler,
-            DeactivateIncidencyCommandHandler deactivateIncidencyCommandHandler) {
+            DeactivateIncidencyCommandHandler deactivateIncidencyCommandHandler,
+            ILiquidationMapper liquidationMapper,
+            ITourMapper tourMapper,
+            IHotelBookingMapper hotelBookingMapper,
+            IFlightBookingMapper flightBookingMapper,
+            IAdditionalServicesMapper additionalServicesMapper,
+            IPaymentMapper paymentMapper,
+            IIncidencyMapper incidencyMapper) {
         this.createLiquidationCommandHandler = createLiquidationCommandHandler;
         this.liquidationPaginatedQueryHandler = liquidationPaginatedQueryHandler;
         this.getLiquidationByIdQueryHandler = getLiquidationByIdQueryHandler;
@@ -170,6 +199,13 @@ public class LiquidationController {
         this.deactivateAdditionalServiceCommandHandler = deactivateAdditionalServiceCommandHandler;
         this.deactivatePaymentCommandHandler = deactivatePaymentCommandHandler;
         this.deactivateIncidencyCommandHandler = deactivateIncidencyCommandHandler;
+        this.liquidationMapper = liquidationMapper;
+        this.tourMapper = tourMapper;
+        this.hotelBookingMapper = hotelBookingMapper;
+        this.flightBookingMapper = flightBookingMapper;
+        this.additionalServicesMapper = additionalServicesMapper;
+        this.paymentMapper = paymentMapper;
+        this.incidencyMapper = incidencyMapper;
     }
 
     @PostMapping
@@ -291,143 +327,143 @@ public class LiquidationController {
 
     @PutMapping("/{liquidationId}/tour-services/{tourServiceId}/tours/{tourId}")
     @Operation(summary = "Actualizar un tour específico")
-    public ResponseEntity<Tour> updateTour(
+    public ResponseEntity<DTour> updateTour(
             @PathVariable Long liquidationId,
             @PathVariable Long tourServiceId,
             @PathVariable Long tourId,
             @Valid @RequestBody UpdateTourDto dto) {
         UpdateTourCommand command = new UpdateTourCommand(liquidationId, tourServiceId, tourId, dto);
         Tour updatedTour = updateTourCommandHandler.execute(command);
-        return ResponseEntity.ok(updatedTour);
+        return ResponseEntity.ok(tourMapper.toDomain(updatedTour));
     }
 
     @PutMapping("/{liquidationId}/hotel-services/{hotelServiceId}/bookings/{hotelBookingId}")
     @Operation(summary = "Actualizar una reserva de hotel específica")
-    public ResponseEntity<HotelBooking> updateHotelBooking(
+    public ResponseEntity<DHotelBooking> updateHotelBooking(
             @PathVariable Long liquidationId,
             @PathVariable Long hotelServiceId,
             @PathVariable Long hotelBookingId,
             @Valid @RequestBody UpdateHotelBookingDto dto) {
         UpdateHotelBookingCommand command = new UpdateHotelBookingCommand(liquidationId, hotelServiceId, hotelBookingId, dto);
         HotelBooking updatedHotelBooking = updateHotelBookingCommandHandler.execute(command);
-        return ResponseEntity.ok(updatedHotelBooking);
+        return ResponseEntity.ok(hotelBookingMapper.toDomain(updatedHotelBooking));
     }
 
     @PutMapping("/{liquidationId}/flight-services/{flightServiceId}/bookings/{flightBookingId}")
     @Operation(summary = "Actualizar una reserva de vuelo específica")
-    public ResponseEntity<FlightBooking> updateFlightBooking(
+    public ResponseEntity<DFlightBooking> updateFlightBooking(
             @PathVariable Long liquidationId,
             @PathVariable Long flightServiceId,
             @PathVariable Long flightBookingId,
             @Valid @RequestBody UpdateFlightBookingDto dto) {
         UpdateFlightBookingCommand command = new UpdateFlightBookingCommand(liquidationId, flightServiceId, flightBookingId, dto);
         FlightBooking updatedFlightBooking = updateFlightBookingCommandHandler.execute(command);
-        return ResponseEntity.ok(updatedFlightBooking);
+        return ResponseEntity.ok(flightBookingMapper.toDomain(updatedFlightBooking));
     }
 
     @PutMapping("/{liquidationId}/additional-services/{additionalServiceId}")
     @Operation(summary = "Actualizar un servicio adicional")
-    public ResponseEntity<AdditionalServices> updateAdditionalService(
+    public ResponseEntity<DAdditionalServices> updateAdditionalService(
             @PathVariable Long liquidationId,
             @PathVariable Long additionalServiceId,
             @Valid @RequestBody UpdateAdditionalServiceDto dto) {
         UpdateAdditionalServiceCommand command = new UpdateAdditionalServiceCommand(liquidationId, additionalServiceId, dto);
         AdditionalServices updatedAdditionalService = updateAdditionalServiceCommandHandler.execute(command);
-        return ResponseEntity.ok(updatedAdditionalService);
+        return ResponseEntity.ok(additionalServicesMapper.toDomain(updatedAdditionalService));
     }
 
     @PutMapping("/{liquidationId}/payments/{paymentId}")
     @Operation(summary = "Actualizar un pago")
-    public ResponseEntity<Payment> updatePayment(
+    public ResponseEntity<DPayment> updatePayment(
             @PathVariable Long liquidationId,
             @PathVariable Long paymentId,
             @Valid @RequestBody UpdatePaymentDto dto) {
         UpdatePaymentCommand command = new UpdatePaymentCommand(liquidationId, paymentId, dto);
         Payment updatedPayment = updatePaymentCommandHandler.execute(command);
-        return ResponseEntity.ok(updatedPayment);
+        return ResponseEntity.ok(paymentMapper.toDomain(updatedPayment));
     }
 
     @PutMapping("/{liquidationId}/incidencies/{incidencyId}")
     @Operation(summary = "Actualizar una incidencia")
-    public ResponseEntity<Incidency> updateIncidency(
+    public ResponseEntity<DIncidency> updateIncidency(
             @PathVariable Long liquidationId,
             @PathVariable Long incidencyId,
             @Valid @RequestBody UpdateIncidencyDto dto) {
         UpdateIncidencyCommand command = new UpdateIncidencyCommand(liquidationId, incidencyId, dto);
         Incidency updatedIncidency = updateIncidencyCommandHandler.execute(command);
-        return ResponseEntity.ok(updatedIncidency);
+        return ResponseEntity.ok(incidencyMapper.toDomain(updatedIncidency));
     }
 
     // ============== DELETE (Soft Delete) Endpoints ==============
 
     @DeleteMapping("/{liquidationId}")
     @Operation(summary = "Desactivar (soft delete) una liquidación")
-    public ResponseEntity<Liquidation> deactivateLiquidation(@PathVariable Long liquidationId) {
+    public ResponseEntity<DLiquidation> deactivateLiquidation(@PathVariable Long liquidationId) {
         DeactivateLiquidationCommand command = new DeactivateLiquidationCommand(liquidationId);
         Liquidation result = deactivateLiquidationCommandHandler.execute(command);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(liquidationMapper.toDomain(result));
     }
 
     @DeleteMapping("/{liquidationId}/tour-services/{tourServiceId}/tours/{tourId}")
     @Operation(summary = "Desactivar (soft delete) un tour")
-    public ResponseEntity<Tour> deactivateTour(
+    public ResponseEntity<DTour> deactivateTour(
             @PathVariable Long liquidationId,
             @PathVariable Long tourServiceId,
             @PathVariable Long tourId) {
         DeactivateTourCommand command = new DeactivateTourCommand(liquidationId, tourServiceId, tourId);
         Tour result = deactivateTourCommandHandler.execute(command);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(tourMapper.toDomain(result));
     }
 
     @DeleteMapping("/{liquidationId}/hotel-services/{hotelServiceId}/bookings/{hotelBookingId}")
     @Operation(summary = "Desactivar (soft delete) una reserva de hotel")
-    public ResponseEntity<HotelBooking> deactivateHotelBooking(
+    public ResponseEntity<DHotelBooking> deactivateHotelBooking(
             @PathVariable Long liquidationId,
             @PathVariable Long hotelServiceId,
             @PathVariable Long hotelBookingId) {
         DeactivateHotelBookingCommand command = new DeactivateHotelBookingCommand(liquidationId, hotelServiceId, hotelBookingId);
         HotelBooking result = deactivateHotelBookingCommandHandler.execute(command);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(hotelBookingMapper.toDomain(result));
     }
 
     @DeleteMapping("/{liquidationId}/flight-services/{flightServiceId}/bookings/{flightBookingId}")
     @Operation(summary = "Desactivar (soft delete) una reserva de vuelo")
-    public ResponseEntity<FlightBooking> deactivateFlightBooking(
+    public ResponseEntity<DFlightBooking> deactivateFlightBooking(
             @PathVariable Long liquidationId,
             @PathVariable Long flightServiceId,
             @PathVariable Long flightBookingId) {
         DeactivateFlightBookingCommand command = new DeactivateFlightBookingCommand(liquidationId, flightServiceId, flightBookingId);
         FlightBooking result = deactivateFlightBookingCommandHandler.execute(command);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(flightBookingMapper.toDomain(result));
     }
 
     @DeleteMapping("/{liquidationId}/additional-services/{additionalServiceId}")
     @Operation(summary = "Desactivar (soft delete) un servicio adicional")
-    public ResponseEntity<AdditionalServices> deactivateAdditionalService(
+    public ResponseEntity<DAdditionalServices> deactivateAdditionalService(
             @PathVariable Long liquidationId,
             @PathVariable Long additionalServiceId) {
         DeactivateAdditionalServiceCommand command = new DeactivateAdditionalServiceCommand(liquidationId, additionalServiceId);
         AdditionalServices result = deactivateAdditionalServiceCommandHandler.execute(command);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(additionalServicesMapper.toDomain(result));
     }
 
     @DeleteMapping("/{liquidationId}/payments/{paymentId}")
     @Operation(summary = "Desactivar (soft delete) un pago")
-    public ResponseEntity<Payment> deactivatePayment(
+    public ResponseEntity<DPayment> deactivatePayment(
             @PathVariable Long liquidationId,
             @PathVariable Long paymentId) {
         DeactivatePaymentCommand command = new DeactivatePaymentCommand(liquidationId, paymentId);
         Payment result = deactivatePaymentCommandHandler.execute(command);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(paymentMapper.toDomain(result));
     }
 
     @DeleteMapping("/{liquidationId}/incidencies/{incidencyId}")
     @Operation(summary = "Desactivar (soft delete) una incidencia")
-    public ResponseEntity<Incidency> deactivateIncidency(
+    public ResponseEntity<DIncidency> deactivateIncidency(
             @PathVariable Long liquidationId,
             @PathVariable Long incidencyId) {
         DeactivateIncidencyCommand command = new DeactivateIncidencyCommand(liquidationId, incidencyId);
         Incidency result = deactivateIncidencyCommandHandler.execute(command);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(incidencyMapper.toDomain(result));
     }
 }

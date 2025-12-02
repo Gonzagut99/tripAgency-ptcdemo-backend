@@ -18,6 +18,7 @@ public class CustomerLombokMapper implements ICustomerLombokMapper {
             return null;
         }
         Customer.CustomerBuilder customerBuilder = Customer.builder();
+        customerBuilder.id(domainCustomer.getId());
         customerBuilder.firstName(domainCustomer.getFirstName());
         customerBuilder.lastName(domainCustomer.getLastName());
         customerBuilder.email(domainCustomer.getEmail() != null ? domainCustomer.getEmail().orElse(null) : null);
