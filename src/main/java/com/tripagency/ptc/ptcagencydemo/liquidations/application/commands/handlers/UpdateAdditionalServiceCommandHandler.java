@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateAdditionalServiceCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.services.LiquidationTotalsService;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.AdditionalServices;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.ServiceStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.repositories.interfaces.IAdditionalServicesJpaRepository;
@@ -14,9 +15,13 @@ import com.tripagency.ptc.ptcagencydemo.users.infrastructure.enums.Currency;
 public class UpdateAdditionalServiceCommandHandler {
     
     private final IAdditionalServicesJpaRepository additionalServicesRepository;
+    private final LiquidationTotalsService liquidationTotalsService;
     
-    public UpdateAdditionalServiceCommandHandler(IAdditionalServicesJpaRepository additionalServicesRepository) {
+    public UpdateAdditionalServiceCommandHandler(
+            IAdditionalServicesJpaRepository additionalServicesRepository,
+            LiquidationTotalsService liquidationTotalsService) {
         this.additionalServicesRepository = additionalServicesRepository;
+        this.liquidationTotalsService = liquidationTotalsService;
     }
     
     @Transactional
@@ -37,6 +42,11 @@ public class UpdateAdditionalServiceCommandHandler {
         additionalService.setPrice(dto.getPrice());
         additionalService.setStatus(ServiceStatus.valueOf(dto.getStatus()));
         
-        return additionalServicesRepository.save(additionalService);
+        AdditionalServices saved = additionalServicesRepository.save(additionalService);
+        
+        // Recalcular totales de la liquidación
+        liquidationTotalsService.recalculateAndSaveTotals(command.liquidationId());
+        
+        return saved;
     }
 }

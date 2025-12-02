@@ -33,15 +33,19 @@ public class DTourService extends DBaseAbstractService {
 
     @Override
     public float calculateTotal() {
+        float baseTotal = calculateBaseAmount();
+        return applyTariffAndTax(baseTotal);
+    }
+
+    @Override
+    public float calculateBaseAmount() {
         if (tours == null || tours.isEmpty()) {
             return 0f;
         }
         
-        float baseTotal = tours.stream()
+        return tours.stream()
             .map(DTour::getPrice)
             .reduce(0f, Float::sum);
-        
-        return applyTariffAndTax(baseTotal);
     }
 
     public boolean hasTours() {

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateFlightBookingCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.services.LiquidationTotalsService;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.FlightBooking;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.ServiceStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.repositories.interfaces.IFlightBookingJpaRepository;
@@ -14,9 +15,13 @@ import com.tripagency.ptc.ptcagencydemo.users.infrastructure.enums.Currency;
 public class UpdateFlightBookingCommandHandler {
     
     private final IFlightBookingJpaRepository flightBookingRepository;
+    private final LiquidationTotalsService liquidationTotalsService;
     
-    public UpdateFlightBookingCommandHandler(IFlightBookingJpaRepository flightBookingRepository) {
+    public UpdateFlightBookingCommandHandler(
+            IFlightBookingJpaRepository flightBookingRepository,
+            LiquidationTotalsService liquidationTotalsService) {
         this.flightBookingRepository = flightBookingRepository;
+        this.liquidationTotalsService = liquidationTotalsService;
     }
     
     @Transactional
@@ -28,6 +33,9 @@ public class UpdateFlightBookingCommandHandler {
         if (!flightBooking.getFlightServiceId().equals(command.flightServiceId())) {
             throw new IllegalArgumentException("La reserva no pertenece al servicio de vuelo especificado");
         }
+        
+        // Guardar el liquidationId antes de la actualización (a través de la relación con FlightService)
+        Long liquidationId = flightBooking.getFlightService().getLiquidationId();
         
         UpdateFlightBookingDto dto = command.flightBookingDto();
         
@@ -43,6 +51,11 @@ public class UpdateFlightBookingCommandHandler {
         flightBooking.setCurrency(Currency.valueOf(dto.getCurrency()));
         flightBooking.setStatus(ServiceStatus.valueOf(dto.getStatus()));
         
-        return flightBookingRepository.save(flightBooking);
+        FlightBooking saved = flightBookingRepository.save(flightBooking);
+        
+        // Recalcular totales de la liquidación
+        liquidationTotalsService.recalculateAndSaveTotals(liquidationId);
+        
+        return saved;
     }
 }

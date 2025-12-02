@@ -32,6 +32,11 @@ public class DAdditionalServices extends DBaseAbstractService {
         return applyTariffAndTax(price);
     }
 
+    @Override
+    public float calculateBaseAmount() {
+        return price;
+    }
+
     public void complete() {
         this.status = DServiceStatus.COMPLETED;
     }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateTourCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.services.LiquidationTotalsService;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Tour;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.ServiceStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.repositories.interfaces.ITourJpaRepository;
@@ -14,9 +15,13 @@ import com.tripagency.ptc.ptcagencydemo.users.infrastructure.enums.Currency;
 public class UpdateTourCommandHandler {
     
     private final ITourJpaRepository tourRepository;
+    private final LiquidationTotalsService liquidationTotalsService;
     
-    public UpdateTourCommandHandler(ITourJpaRepository tourRepository) {
+    public UpdateTourCommandHandler(
+            ITourJpaRepository tourRepository,
+            LiquidationTotalsService liquidationTotalsService) {
         this.tourRepository = tourRepository;
+        this.liquidationTotalsService = liquidationTotalsService;
     }
     
     @Transactional
@@ -29,6 +34,9 @@ public class UpdateTourCommandHandler {
             throw new IllegalArgumentException("El tour no pertenece al servicio de tour especificado");
         }
         
+        // Guardar el liquidationId antes de la actualización
+        Long liquidationId = tour.getTourService().getLiquidationId();
+        
         UpdateTourDto dto = command.tourDto();
         
         tour.setStartDate(dto.getStartDate());
@@ -39,6 +47,11 @@ public class UpdateTourCommandHandler {
         tour.setCurrency(Currency.valueOf(dto.getCurrency()));
         tour.setStatus(ServiceStatus.valueOf(dto.getStatus()));
         
-        return tourRepository.save(tour);
+        Tour saved = tourRepository.save(tour);
+        
+        // Recalcular totales de la liquidación
+        liquidationTotalsService.recalculateAndSaveTotals(liquidationId);
+        
+        return saved;
     }
 }

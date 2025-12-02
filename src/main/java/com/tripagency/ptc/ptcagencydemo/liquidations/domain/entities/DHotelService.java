@@ -32,15 +32,19 @@ public class DHotelService extends DBaseAbstractService {
 
     @Override
     public float calculateTotal() {
+        float baseTotal = calculateBaseAmount();
+        return applyTariffAndTax(baseTotal);
+    }
+
+    @Override
+    public float calculateBaseAmount() {
         if (hotelBookings == null || hotelBookings.isEmpty()) {
             return 0f;
         }
         
-        float baseTotal = hotelBookings.stream()
+        return hotelBookings.stream()
             .map(DHotelBooking::calculateTotalPrice)
             .reduce(0f, Float::sum);
-        
-        return applyTariffAndTax(baseTotal);
     }
 
     public boolean hasBookings() {

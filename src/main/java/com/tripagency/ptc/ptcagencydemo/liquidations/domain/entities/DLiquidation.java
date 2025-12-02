@@ -20,7 +20,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DLiquidation extends BaseAbstractDomainEntity {
     private float currencyRate;
-    private float totalAmount;
+    private float totalAmount; // Total en PEN (se mantiene por compatibilidad)
+    private Float totalAmountUSD; // Total en USD (nuevo, nullable)
+    private Float totalCommissionPEN; // Total comisión en PEN (nuevo, nullable)
+    private Float totalCommissionUSD; // Total comisión en USD (nuevo, nullable)
     private LocalDateTime paymentDeadline;
     private int companion;
     private DLiquidationStatus status;
@@ -49,6 +52,9 @@ public class DLiquidation extends BaseAbstractDomainEntity {
         this.status = DLiquidationStatus.IN_QUOTE;
         this.paymentStatus = DPaymentStatus.PENDING;
         this.totalAmount = 0f;
+        this.totalAmountUSD = 0f;
+        this.totalCommissionPEN = 0f;
+        this.totalCommissionUSD = 0f;
         this.payments = new ArrayList<>();
         this.flightServices = new ArrayList<>();
         this.hotelServices = new ArrayList<>();
@@ -157,33 +163,37 @@ public class DLiquidation extends BaseAbstractDomainEntity {
     }
 
     // Business Logic Methods
-    public float calculateTotal() {
+    
+    /**
+     * Calcula el total en PEN sumando todos los servicios en moneda PEN
+     */
+    public float calculateTotalPEN() {
         float total = 0f;
 
-        // Sum all flight services
         if (flightServices != null) {
             total += flightServices.stream()
+                    .filter(DBaseAbstractService::isPEN)
                     .map(DFlightService::calculateTotal)
                     .reduce(0f, Float::sum);
         }
 
-        // Sum all hotel services
         if (hotelServices != null) {
             total += hotelServices.stream()
+                    .filter(DBaseAbstractService::isPEN)
                     .map(DHotelService::calculateTotal)
                     .reduce(0f, Float::sum);
         }
 
-        // Sum all tour services
         if (tourServices != null) {
             total += tourServices.stream()
+                    .filter(DBaseAbstractService::isPEN)
                     .map(DTourService::calculateTotal)
                     .reduce(0f, Float::sum);
         }
 
-        // Sum all additional services
         if (additionalServices != null) {
             total += additionalServices.stream()
+                    .filter(DBaseAbstractService::isPEN)
                     .map(DAdditionalServices::calculateTotal)
                     .reduce(0f, Float::sum);
         }
@@ -191,8 +201,136 @@ public class DLiquidation extends BaseAbstractDomainEntity {
         return total;
     }
 
+    /**
+     * Calcula el total en USD sumando todos los servicios en moneda USD
+     */
+    public float calculateTotalUSD() {
+        float total = 0f;
+
+        if (flightServices != null) {
+            total += flightServices.stream()
+                    .filter(DBaseAbstractService::isUSD)
+                    .map(DFlightService::calculateTotal)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (hotelServices != null) {
+            total += hotelServices.stream()
+                    .filter(DBaseAbstractService::isUSD)
+                    .map(DHotelService::calculateTotal)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (tourServices != null) {
+            total += tourServices.stream()
+                    .filter(DBaseAbstractService::isUSD)
+                    .map(DTourService::calculateTotal)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (additionalServices != null) {
+            total += additionalServices.stream()
+                    .filter(DBaseAbstractService::isUSD)
+                    .map(DAdditionalServices::calculateTotal)
+                    .reduce(0f, Float::sum);
+        }
+
+        return total;
+    }
+
+    /**
+     * Calcula el total de comisiones en PEN
+     */
+    public float calculateTotalCommissionPEN() {
+        float total = 0f;
+
+        if (flightServices != null) {
+            total += flightServices.stream()
+                    .filter(DBaseAbstractService::isPEN)
+                    .map(DFlightService::calculateCommission)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (hotelServices != null) {
+            total += hotelServices.stream()
+                    .filter(DBaseAbstractService::isPEN)
+                    .map(DHotelService::calculateCommission)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (tourServices != null) {
+            total += tourServices.stream()
+                    .filter(DBaseAbstractService::isPEN)
+                    .map(DTourService::calculateCommission)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (additionalServices != null) {
+            total += additionalServices.stream()
+                    .filter(DBaseAbstractService::isPEN)
+                    .map(DAdditionalServices::calculateCommission)
+                    .reduce(0f, Float::sum);
+        }
+
+        return total;
+    }
+
+    /**
+     * Calcula el total de comisiones en USD
+     */
+    public float calculateTotalCommissionUSD() {
+        float total = 0f;
+
+        if (flightServices != null) {
+            total += flightServices.stream()
+                    .filter(DBaseAbstractService::isUSD)
+                    .map(DFlightService::calculateCommission)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (hotelServices != null) {
+            total += hotelServices.stream()
+                    .filter(DBaseAbstractService::isUSD)
+                    .map(DHotelService::calculateCommission)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (tourServices != null) {
+            total += tourServices.stream()
+                    .filter(DBaseAbstractService::isUSD)
+                    .map(DTourService::calculateCommission)
+                    .reduce(0f, Float::sum);
+        }
+
+        if (additionalServices != null) {
+            total += additionalServices.stream()
+                    .filter(DBaseAbstractService::isUSD)
+                    .map(DAdditionalServices::calculateCommission)
+                    .reduce(0f, Float::sum);
+        }
+
+        return total;
+    }
+
+    /**
+     * Calcula el total general (suma de PEN + USD convertido) - método legacy para compatibilidad
+     */
+    public float calculateTotal() {
+        return calculateTotalPEN() + calculateTotalUSD();
+    }
+
+    /**
+     * Recalcula y actualiza todos los totales de la liquidación
+     */
+    public void recalculateTotals() {
+        this.totalAmount = calculateTotalPEN();
+        this.totalAmountUSD = calculateTotalUSD();
+        this.totalCommissionPEN = calculateTotalCommissionPEN();
+        this.totalCommissionUSD = calculateTotalCommissionUSD();
+    }
+
     private void recalculateTotal() {
-        this.totalAmount = calculateTotal();
+        recalculateTotals();
     }
 
     private void updatePaymentStatus() {

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateHotelBookingCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.services.LiquidationTotalsService;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.HotelBooking;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.ServiceStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.repositories.interfaces.IHotelBookingJpaRepository;
@@ -14,9 +15,13 @@ import com.tripagency.ptc.ptcagencydemo.users.infrastructure.enums.Currency;
 public class UpdateHotelBookingCommandHandler {
     
     private final IHotelBookingJpaRepository hotelBookingRepository;
+    private final LiquidationTotalsService liquidationTotalsService;
     
-    public UpdateHotelBookingCommandHandler(IHotelBookingJpaRepository hotelBookingRepository) {
+    public UpdateHotelBookingCommandHandler(
+            IHotelBookingJpaRepository hotelBookingRepository,
+            LiquidationTotalsService liquidationTotalsService) {
         this.hotelBookingRepository = hotelBookingRepository;
+        this.liquidationTotalsService = liquidationTotalsService;
     }
     
     @Transactional
@@ -29,6 +34,9 @@ public class UpdateHotelBookingCommandHandler {
             throw new IllegalArgumentException("La reserva no pertenece al servicio de hotel especificado");
         }
         
+        // Guardar el liquidationId antes de la actualización
+        Long liquidationId = hotelBooking.getHotelService().getLiquidationId();
+        
         UpdateHotelBookingDto dto = command.hotelBookingDto();
         
         hotelBooking.setCheckIn(dto.getCheckIn());
@@ -40,6 +48,11 @@ public class UpdateHotelBookingCommandHandler {
         hotelBooking.setCurrency(Currency.valueOf(dto.getCurrency()));
         hotelBooking.setStatus(ServiceStatus.valueOf(dto.getStatus()));
         
-        return hotelBookingRepository.save(hotelBooking);
+        HotelBooking saved = hotelBookingRepository.save(hotelBooking);
+        
+        // Recalcular totales de la liquidación
+        liquidationTotalsService.recalculateAndSaveTotals(liquidationId);
+        
+        return saved;
     }
 }

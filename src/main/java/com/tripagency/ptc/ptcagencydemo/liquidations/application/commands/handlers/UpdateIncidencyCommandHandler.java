@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdateIncidencyCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.services.LiquidationTotalsService;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Incidency;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.IncidencyStatus;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.repositories.interfaces.IIncidencyJpaRepository;
@@ -13,9 +14,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdateInci
 public class UpdateIncidencyCommandHandler {
     
     private final IIncidencyJpaRepository incidencyRepository;
+    private final LiquidationTotalsService liquidationTotalsService;
     
-    public UpdateIncidencyCommandHandler(IIncidencyJpaRepository incidencyRepository) {
+    public UpdateIncidencyCommandHandler(
+            IIncidencyJpaRepository incidencyRepository,
+            LiquidationTotalsService liquidationTotalsService) {
         this.incidencyRepository = incidencyRepository;
+        this.liquidationTotalsService = liquidationTotalsService;
     }
     
     @Transactional
@@ -35,6 +40,11 @@ public class UpdateIncidencyCommandHandler {
         incidency.setIncidencyDate(dto.getIncidencyDate());
         incidency.setIncidencyStatus(IncidencyStatus.valueOf(dto.getIncidencyStatus()));
         
-        return incidencyRepository.save(incidency);
+        Incidency saved = incidencyRepository.save(incidency);
+        
+        // Recalcular totales de la liquidación
+        liquidationTotalsService.recalculateAndSaveTotals(command.liquidationId());
+        
+        return saved;
     }
 }

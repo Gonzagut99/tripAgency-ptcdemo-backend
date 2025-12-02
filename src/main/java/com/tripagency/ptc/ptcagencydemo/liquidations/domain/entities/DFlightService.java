@@ -33,15 +33,19 @@ public class DFlightService extends DBaseAbstractService {
 
     @Override
     public float calculateTotal() {
+        float baseTotal = calculateBaseAmount();
+        return applyTariffAndTax(baseTotal);
+    }
+
+    @Override
+    public float calculateBaseAmount() {
         if (flightBookings == null || flightBookings.isEmpty()) {
             return 0f;
         }
         
-        float baseTotal = flightBookings.stream()
+        return flightBookings.stream()
             .map(DFlightBooking::getTotalPrice)
             .reduce(0f, Float::sum);
-        
-        return applyTariffAndTax(baseTotal);
     }
 
     public boolean hasBookings() {

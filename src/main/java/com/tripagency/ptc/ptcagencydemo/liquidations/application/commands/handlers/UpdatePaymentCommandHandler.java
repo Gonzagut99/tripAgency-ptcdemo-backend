@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tripagency.ptc.ptcagencydemo.liquidations.application.commands.UpdatePaymentCommand;
+import com.tripagency.ptc.ptcagencydemo.liquidations.application.services.LiquidationTotalsService;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.entities.Payment;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.PaymentMethod;
 import com.tripagency.ptc.ptcagencydemo.liquidations.infrastructure.enums.PaymentValidity;
@@ -14,9 +15,13 @@ import com.tripagency.ptc.ptcagencydemo.liquidations.presentation.dto.UpdatePaym
 public class UpdatePaymentCommandHandler {
     
     private final IPaymentJpaRepository paymentRepository;
+    private final LiquidationTotalsService liquidationTotalsService;
     
-    public UpdatePaymentCommandHandler(IPaymentJpaRepository paymentRepository) {
+    public UpdatePaymentCommandHandler(
+            IPaymentJpaRepository paymentRepository,
+            LiquidationTotalsService liquidationTotalsService) {
         this.paymentRepository = paymentRepository;
+        this.liquidationTotalsService = liquidationTotalsService;
     }
     
     @Transactional
@@ -35,6 +40,11 @@ public class UpdatePaymentCommandHandler {
         payment.setAmount(dto.getAmount());
         payment.setValidationStatus(PaymentValidity.valueOf(dto.getValidationStatus()));
         
-        return paymentRepository.save(payment);
+        Payment saved = paymentRepository.save(payment);
+        
+        // Recalcular totales de la liquidación
+        liquidationTotalsService.recalculateAndSaveTotals(command.liquidationId());
+        
+        return saved;
     }
 }

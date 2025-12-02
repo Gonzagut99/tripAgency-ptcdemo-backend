@@ -38,6 +38,9 @@ public class LiquidationRepository implements ILiquidationRepository {
             // Update scalar fields
             existingEntity.setCurrencyRate(liquidation.getCurrencyRate());
             existingEntity.setTotalAmount(liquidation.getTotalAmount());
+            existingEntity.setTotalAmountUSD(liquidation.getTotalAmountUSD());
+            existingEntity.setTotalCommissionPEN(liquidation.getTotalCommissionPEN());
+            existingEntity.setTotalCommissionUSD(liquidation.getTotalCommissionUSD());
             existingEntity.setPaymentDeadline(liquidation.getPaymentDeadline());
             existingEntity.setCompanion(liquidation.getCompanion());
             existingEntity.setStatus(enumMapper.toInfrastructure(liquidation.getStatus()));

@@ -32,6 +32,9 @@ public class LiquidationWithDetailsDto {
     private DStaff staffOnCharge;
     private float currencyRate;
     private float totalAmount;
+    private Float totalAmountUSD;
+    private Float totalCommissionPEN;
+    private Float totalCommissionUSD;
     private LocalDateTime paymentDeadline;
     private int companion;
     private DLiquidationStatus status;

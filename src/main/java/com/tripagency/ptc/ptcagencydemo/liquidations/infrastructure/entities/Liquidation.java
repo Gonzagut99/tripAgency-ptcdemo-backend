@@ -32,6 +32,18 @@ public class Liquidation extends BaseAbstractEntity {
     @Column(name = "total_amount", nullable = false)
     private float totalAmount;
 
+    @PositiveOrZero(message = "Total amount USD cannot be negative")
+    @Column(name = "total_amount_usd", nullable = true)
+    private Float totalAmountUSD;
+
+    @PositiveOrZero(message = "Total commission PEN cannot be negative")
+    @Column(name = "total_commission_pen", nullable = true)
+    private Float totalCommissionPEN;
+
+    @PositiveOrZero(message = "Total commission USD cannot be negative")
+    @Column(name = "total_commission_usd", nullable = true)
+    private Float totalCommissionUSD;
+
     @NotNull(message = "Payment deadline is required")
     @Column(name = "payment_deadline", nullable = false)
     private LocalDateTime paymentDeadline;
